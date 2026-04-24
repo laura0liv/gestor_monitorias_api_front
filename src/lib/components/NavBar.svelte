@@ -1,49 +1,86 @@
-<nav class="navbar">
-  <div class="logo">Gestión Tutorías</div>
-  <ul class="menu">
-    <li><a href="/">Inicio</a></li>
-    <li><a href="/Estudiante">Mi perfil</a></li>
-    <li><a href="/Login">Login</a></li>
+<script>
+  import { page } from '$app/stores';
+
+  const links = [
+    { href: '/',            label: 'Inicio'    },
+    { href: '/Estudiante',  label: 'Mi perfil' },
+    { href: '/Login',       label: 'Login'     },
+  ];
+</script>
+
+<nav>
+  <div class="brand">
+    <div class="brand-dot">GT</div>
+    <span>Gestión Tutorías</span>
+  </div>
+
+  <ul class="links">
+    {#each links as l}
+      <li>
+        <a href={l.href} class:active={$page.url.pathname === l.href}>
+          {l.label}
+        </a>
+      </li>
+    {/each}
   </ul>
 </nav>
 
 <style>
-  /* =========================
-     NAVBAR
-  ========================= */
-  .navbar {
+  nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 1.5rem;
     background: #010A55;
-    color: white;
+    border-bottom: 1px solid #0a1870;
   }
 
-  .logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-
-  /* =========================
-     MENU
-  ========================= */
-  .menu {
+  .brand {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .brand-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1D9E75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .links {
+    display: flex;
+    gap: 4px;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  .menu li a {
-    color: white;
+  .links a {
+    display: block;
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease-in-out;
+    font-size: 13px;
+    font-weight: 400;
+    transition: background 0.15s, color 0.15s;
   }
 
-  .menu li a:hover {
-    color: #f0a500; /* efecto hover */
+  .links a:hover,
+  .links a.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
   }
 </style>
