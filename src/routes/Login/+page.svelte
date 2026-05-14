@@ -1,185 +1,203 @@
 <script>
-  import { usuarios } from "$lib/usuarios.js";
-  import { goto } from "$app/navigation";
+  import { goto } from '$app/navigation';
+  import { API } from '$lib/services/api';
+  import '$lib/styles/login.css';
 
-  let email = "";
-  let password = "";
-  let remember = false;
-  let showPassword = false;
+  let email         = $state('');
+  let password      = $state('');
+  let remember      = $state(false);
+  let showPassword  = $state(false);
+  let cargando      = $state(false);
+  let error         = $state('');
 
-  function handleLogin() {
-    const usuario = usuarios.find(
-      u => u.correo === email && u.password === password
-    );
+  async function handleLogin(e) {
+    e.preventDefault();
+    error    = '';
+    cargando = true;
 
-    if (usuario) {
-      if (usuario.rol === "tutor") {
-        goto("/Tutor");
-      } else if (usuario.rol === "estudiante") {
-        goto("/Estudiante");
-      } else if (usuario.rol === "admin") {
-        goto("/Admin");
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: email, contrasena: password }),
+      });
+
+      if (!res.ok) {
+        error = 'Correo o contraseña incorrectos';
+        return;
       }
-    } else {
-      alert("Correo o contraseña incorrectos");
-    }
-  }
 
-  function togglePassword(){
-    showPassword = !showPassword;
+      const usuario = await res.json();
+
+      const rutas = { '1': '/Admin', '2': '/Tutor', '3': '/Estudiante' };
+      const ruta  = rutas[String(usuario.id_rol)];
+
+      if (ruta) {
+        goto(ruta);
+      } else {
+        error = 'Rol de usuario no reconocido';
+      }
+    } catch {
+      error = 'No se pudo conectar con el servidor';
+    } finally {
+      cargando = false;
+    }
   }
 </script>
 
 <div class="login-bg">
-  <div class="container h-100">
-    <div class="row justify-content-center align-items-center min-vh-100">
-      <div class="col-11 col-sm-8 col-md-6 col-lg-4">
-        <div class="login-card shadow">
+  <div class="login-wrapper">
 
-          <!-- icono -->
-          <div class="text-center mb-3">
-            <i class="bi bi-person-circle login-icon"></i>
-          </div>
-          <h3 class="text-center mb-4">Sistema de Monitorías</h3>
-          <form on:submit|preventDefault={handleLogin}>
+    <!-- ── Panel izquierdo: marca ── -->
+    <div class="login-brand">
 
-            <!-- email -->
-            <div class="input-group mb-3">
-              <span class="input-group-text">
-                <i class="bi bi-envelope"></i>
-              </span>
-
-              <input
-                type="email"
-                class="form-control"
-                placeholder="Correo electrónico"
-                bind:value={email}
-                required
-              />
-            </div>
-
-            <!-- password -->
-            <div class="input-group mb-3">
-
-              <span class="input-group-text">
-                <i class="bi bi-lock"></i>
-              </span>
-
-              <input
-                type={showPassword ? "text" : "password"}
-                class="form-control"
-                placeholder="Contraseña"
-                bind:value={password}
-                required
-              />
-
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                on:click={togglePassword}
-              >
-                <i class={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
-              </button>
-
-            </div>
-
-            <!-- opciones -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  bind:checked={remember}
-                >
-                <label class="form-check-label">
-                  Recordarme
-                </label>
-              </div>
-
-              <a href="#" class="text-decoration-none small">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-
-            <!-- login -->
-            <button
-              type="submit"
-              class="btn btn-primary w-100 mb-3"
-            >
-              Iniciar sesión
-            </button>
-
-            <!-- registros -->
-
-            <a href="/Estudiante" class="btn btn-dark w-100 mb-2">
-                      Entrar como Estudiante
-            </a>
-    
-            <a href="/Tutor" class="btn btn-dark w-100 mb-2">
-              Entrar como Tutor
-            </a>
-
-            <a href="/Admin" class="btn btn-dark w-100">
-              Entrar como Administrador
-            </a>
-          </form>
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <i class="ti ti-school"></i>
+        </div>
+        <div class="brand-logo-text">
+          Sistema de Monitorías
+          <span>Universidad</span>
         </div>
       </div>
+
+      <div class="brand-body">
+        <h2 class="brand-title">Aprende,<br>enseña y<br>crece.</h2>
+        <p class="brand-sub">
+          Conecta estudiantes con tutores y gestiona monitorías
+          académicas en un solo lugar.
+        </p>
+      </div>
+
+      <div class="brand-pills">
+        <div class="brand-pill">
+          <span class="brand-pill-dot"></span>
+          Gestión de tutores y materias
+        </div>
+        <div class="brand-pill">
+          <span class="brand-pill-dot"></span>
+          Seguimiento de monitorías
+        </div>
+        <div class="brand-pill">
+          <span class="brand-pill-dot"></span>
+          Reportes y exportación de datos
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Panel derecho: formulario ── -->
+    <div class="login-form-panel">
+
+      <div class="login-form-header">
+        <h1 class="login-form-title">Bienvenido</h1>
+        <p class="login-form-sub">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form onsubmit={handleLogin}>
+
+        <!-- Error global -->
+        {#if error}
+          <div style="
+            background:#fef2f2;
+            border:0.5px solid #fecaca;
+            color:#b91c1c;
+            border-radius:8px;
+            padding:0.6rem 0.85rem;
+            font-size:0.82rem;
+            margin-bottom:1rem;
+          ">
+            <i class="ti ti-alert-circle" style="margin-right:5px"></i>{error}
+          </div>
+        {/if}
+
+        <!-- Correo -->
+        <div class="field">
+          <label for="login-email">Correo electrónico</label>
+          <div class="input-wrap">
+            <i class="ti ti-mail input-icon" aria-hidden="true"></i>
+            <input
+              id="login-email"
+              type="email"
+              placeholder="tucorreo@universidad.edu.co"
+              bind:value={email}
+              autocomplete="email"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field">
+          <label for="login-password">Contraseña</label>
+          <div class="input-wrap">
+            <i class="ti ti-lock input-icon" aria-hidden="true"></i>
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              bind:value={password}
+              autocomplete="current-password"
+              required
+            />
+            <button
+              class="btn-toggle-pwd"
+              type="button"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onclick={() => showPassword = !showPassword}
+            >
+              <i class="ti {showPassword ? 'ti-eye-off' : 'ti-eye'}" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recordarme / olvidé -->
+        <div class="login-options">
+          <label class="remember-label">
+            <input type="checkbox" bind:checked={remember} />
+            Recordarme
+          </label>
+          <a href="/recuperar" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Botón principal -->
+        <button type="submit" class="btn-login" disabled={cargando}>
+          {#if cargando}
+            <i class="ti ti-loader-2" style="margin-right:6px;animation:spin 1s linear infinite"></i>
+            Ingresando…
+          {:else}
+            Iniciar sesión
+          {/if}
+        </button>
+
+      </form>
+
+      <!-- Accesos rápidos (solo desarrollo / demo) -->
+      <div class="login-divider"><span>acceso rápido</span></div>
+
+      <div class="quick-access">
+        <a href="/Estudiante" class="btn-quick">
+          <i class="ti ti-user-graduate btn-quick-icon" aria-hidden="true"></i>
+          <span class="btn-quick-label">Estudiante</span>
+        </a>
+        <a href="/Tutor" class="btn-quick">
+          <i class="ti ti-chalkboard btn-quick-icon" aria-hidden="true"></i>
+          <span class="btn-quick-label">Tutor</span>
+        </a>
+        <a href="/Admin" class="btn-quick">
+          <i class="ti ti-settings btn-quick-icon" aria-hidden="true"></i>
+          <span class="btn-quick-label">Admin</span>
+        </a>
+      </div>
+
     </div>
   </div>
 </div>
 
 <style>
-
-.login-bg{
-  min-height:100vh;
-  background:linear-gradient(135deg,#eef2ff,#ffffff);
-}
-
-.login-card{
-  background:white;
-  padding:40px;
-  border-radius:15px;
-  animation:fade 0.6s ease;
-}
-
-.login-icon{
-  font-size:4rem;
-  color:#4f46e5;
-}
-
-button{
-  border-radius:8px;
-  font-weight:500;
-}
-
-.form-control{
-  border-radius:8px;
-}
-
-@keyframes fade{
-  from{
-    opacity:0;
-    transform:translateY(20px);
+  /* Animación del spinner inline — no va al CSS externo porque usa @keyframes
+     que solo aplica a este componente */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-/* ajustes para celular */
-@media (max-width:576px){
-
-.login-card{
-  padding:25px;
-}
-
-.login-icon{
-  font-size:3rem;
-}
-
-}
-
 </style>

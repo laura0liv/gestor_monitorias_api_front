@@ -1,9 +1,9 @@
 <script>
   import "bootstrap/dist/css/bootstrap.min.css";
   import { onMount } from "svelte";
-  import CrudUsuarios from "$lib/components/CrudUsuarios.svelte";
-  import CrudMaterias from "$lib/components/CrudMaterias.svelte";
-  import CrudTutores from "$lib/components/CrudTutores.svelte";
+  import CrudUsuarios from "$lib/components/Admin/CrudUsuarios.svelte";
+  import CrudMaterias from "$lib/components/Admin/CrudMaterias.svelte";
+  import CrudTutores from "$lib/components/Admin/CrudTutores.svelte";
 
   let modulo = $state("dashboard");
 

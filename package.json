@@ -13,6 +13,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-netlify": "^6.0.4",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"prettier": "^3.8.1",
@@ -23,6 +24,8 @@
 	"dependencies": {
 		"bootstrap": "^5.3.8",
 		"bootstrap-icons": "^1.13.1",
+		"gridjs": "^6.2.0",
+		"gridjs-svelte": "^2.1.1",
 		"papaparse": "^5.5.3"
 	}
 }
