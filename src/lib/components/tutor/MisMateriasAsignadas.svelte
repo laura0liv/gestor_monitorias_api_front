@@ -1,25 +1,35 @@
 <script>
   import { onMount } from "svelte";
+  import { API } from '$lib/services/api';
 
   let { idTutor } = $props();
 
-  const API = "http://127.0.0.1:8000";
   let materias  = $state([]);
   let cargando  = $state(false);
   let error     = $state("");
 
-  onMount(async () => {
-    cargando = true;
-    try {
-      const res = await fetch(`${API}/monitor_materia/get_monitors_and_subjects/`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const todos = await res.json();
-      // Filtra solo el tutor actual
-      const yo = todos.find(t => t.id_usuario === idTutor);
-      materias = yo?.materias ?? [];
-    } catch (e) { error = e.message; }
-    finally { cargando = false; }
-  });
+onMount(async () => {
+  cargando = true;
+
+  try {
+    const res = await fetch(
+      `${API}/monitor_materia/get_materias_by_monitor/${idTutor}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    materias = data.materias ?? [];
+
+  } catch (e) {
+    error = e.message;
+  } finally {
+    cargando = false;
+  }
+});
 </script>
 
 <div class="page">
@@ -41,7 +51,7 @@
 
   {:else if materias.length === 0}
     <div class="empty-state">
-      <div class="empty-icon">📚</div>
+      <div class="empty-icon"></div>
       <div class="empty-title">Sin materias asignadas</div>
       <div class="empty-sub">Contacta al administrador para que te asigne materias</div>
     </div>

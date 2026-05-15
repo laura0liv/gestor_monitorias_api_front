@@ -1,0 +1,370 @@
+/* ═══════════════════════════════════════════
+   navbar.css  —  Gestión Tutorías
+   ═══════════════════════════════════════════ */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 1.5rem;
+  background: #010A55;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ── Brand ── */
+.navbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.navbar .brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.navbar .brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.navbar .brand-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.navbar .brand-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Links centrales ── */
+.navbar .nav-links {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar .nav-links a {
+  display: block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar .nav-links a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.navbar .nav-links a.active {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ── Right side ── */
+.navbar .nav-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.navbar .btn-login {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.15s;
+}
+
+.navbar .btn-login:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Perfil ── */
+.navbar .profile-wrap {
+  position: relative;
+}
+
+.navbar .profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 5px 10px 5px 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.navbar .profile-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navbar .profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1d9e75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.navbar .profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.navbar .profile-nombre {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.navbar .profile-rol {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.navbar .chevron {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s;
+}
+
+.navbar .chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown ── */
+.navbar .dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  min-width: 190px;
+  padding: 4px;
+  z-index: 200;
+  animation: dropIn 0.15s ease;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.navbar .dropdown-header {
+  padding: 10px 12px 8px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+  margin-bottom: 4px;
+}
+
+.navbar .dropdown-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+}
+
+.navbar .dropdown-email {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 1px;
+}
+
+.navbar .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.12s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.navbar .dropdown-item:hover {
+  background: #f5f5f3;
+}
+
+.navbar .dropdown-item i {
+  font-size: 14px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.navbar .dropdown-item.danger {
+  color: #a32d2d;
+}
+
+.navbar .dropdown-item.danger:hover {
+  background: #fcebeb;
+}
+
+.navbar .dropdown-item.danger i {
+  color: #a32d2d;
+}
+
+.navbar .dropdown-divider {
+  height: 0.5px;
+  background: rgba(0, 0, 0, 0.07);
+  margin: 3px 6px;
+}
+
+/* ── Hamburger (móvil) ── */
+.navbar .hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ── Menú móvil ── */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: #010A55;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 1rem 12px;
+  gap: 2px;
+}
+
+.mobile-menu a,
+.mobile-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+
+.mobile-menu a:hover,
+.mobile-menu button:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.mobile-menu a.active {
+  background: rgba(255,255,255,0.13);
+  color: #fff;
+  font-weight: 500;
+}
+
+.mobile-menu .mobile-divider {
+  height: 0.5px;
+  background: rgba(255,255,255,0.08);
+  margin: 4px 0;
+}
+
+.mobile-menu .mobile-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.mobile-menu .mobile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1d9e75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.mobile-menu .mobile-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu .mobile-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.mobile-menu .mobile-rol {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ══════════════════════
+   RESPONSIVE
+══════════════════════ */
+@media (max-width: 640px) {
+  .navbar .nav-links  { display: none; }
+  .navbar .nav-right  { display: none; }
+  .navbar .hamburger  { display: block; }
+  .mobile-menu        { display: flex; }
+}

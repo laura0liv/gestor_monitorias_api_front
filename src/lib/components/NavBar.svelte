@@ -1,86 +1,127 @@
 <script>
   import { page } from '$app/stores';
+  import '../styles/navbar.css';   // ajusta la ruta según tu estructura
 
-  const links = [
-    { href: '/',            label: 'Inicio'    },
-    { href: '/Estudiante',  label: 'Mi perfil' },
-    { href: '/Login',       label: 'Login'     },
-  ];
+  /**
+   * usuario: objeto del store de sesión o null si no está logueado.
+   * Forma esperada: { nombre, apellido, rol, email? }
+   * rol: "estudiante" | "monitor" | "admin"
+   */
+  let { usuario = null } = $props();
+
+  const ROL_META = {
+    estudiante: { label: "Estudiante", color: "#010A55", bg: "#EEF0FF", href: "/Estudiante" },
+    monitor:    { label: "Monitor",    color: "#085041", bg: "#E1F5EE", href: "/Tutor"      },
+    admin:      { label: "Admin",      color: "#8B1A1A", bg: "#FDECEA", href: "/Admin"      },
+  };
+
+  let meta          = $derived(usuario ? (ROL_META[usuario.rol] ?? ROL_META.estudiante) : null);
+  let menuAbierto   = $state(false);
+  let burgerAbierto = $state(false);
+
+  function cerrarDropdown(e) {
+    if (!e.target.closest('.profile-wrap')) menuAbierto = false;
+  }
 </script>
 
-<nav>
-  <div class="brand">
-    <div class="brand-dot">GT</div>
-    <span>Gestión Tutorías</span>
+<svelte:window onclick={cerrarDropdown} />
+
+<!-- ── Navbar desktop ── -->
+<nav class="navbar">
+
+  <a href="/" class="brand">
+    <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+    <div class="brand-text">
+      <span class="brand-name">Gestión Tutorías</span>
+      <span class="brand-sub">UniAtlántico</span>
+    </div>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="/" class:active={$page.url.pathname === "/"}>Inicio</a></li>
+    {#if usuario}
+      <li>
+        <a href={meta.href} class:active={$page.url.pathname === meta.href}>Mi panel</a>
+      </li>
+    {/if}
+  </ul>
+
+  <div class="nav-right">
+    {#if !usuario}
+      <a href="/Login" class="btn-login">
+        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+      </a>
+    {:else}
+      <div class="profile-wrap">
+        <button class="profile-btn" onclick={() => menuAbierto = !menuAbierto}>
+          <div class="profile-avatar">{usuario.nombre[0]}{usuario.apellido[0]}</div>
+          <div class="profile-info">
+            <span class="profile-nombre">{usuario.nombre} {usuario.apellido}</span>
+            <span class="profile-rol" style="background:{meta.bg}; color:{meta.color}">
+              {meta.label}
+            </span>
+          </div>
+          <i class="bi bi-chevron-down chevron" class:open={menuAbierto}></i>
+        </button>
+
+        {#if menuAbierto}
+          <div class="dropdown">
+            <div class="dropdown-header">
+              <div class="dropdown-nombre">{usuario.nombre} {usuario.apellido}</div>
+              {#if usuario.email}
+                <div class="dropdown-email">{usuario.email}</div>
+              {/if}
+            </div>
+            <a href={meta.href} class="dropdown-item" onclick={() => menuAbierto = false}>
+              <i class="bi bi-columns-gap"></i> Mi panel
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/Login" class="dropdown-item danger" onclick={() => menuAbierto = false}>
+              <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            </a>
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 
-  <ul class="links">
-    {#each links as l}
-      <li>
-        <a href={l.href} class:active={$page.url.pathname === l.href}>
-          {l.label}
-        </a>
-      </li>
-    {/each}
-  </ul>
+  <!-- Hamburger — visible solo en móvil vía CSS -->
+  <button class="hamburger" onclick={() => burgerAbierto = !burgerAbierto}>
+    <i class="bi" class:bi-list={!burgerAbierto} class:bi-x={burgerAbierto}></i>
+  </button>
+
 </nav>
 
-<style>
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    padding: 0 1.5rem;
-    background: #010A55;
-    border-bottom: 1px solid #0a1870;
-  }
+<!-- ── Menú móvil ── -->
+{#if burgerAbierto}
+  <div class="mobile-menu">
+    {#if usuario}
+      <div class="mobile-user">
+        <div class="mobile-avatar">{usuario.nombre[0]}{usuario.apellido[0]}</div>
+        <div class="mobile-user-info">
+          <span class="mobile-nombre">{usuario.nombre} {usuario.apellido}</span>
+          <span class="mobile-rol">{meta.label}</span>
+        </div>
+      </div>
+      <div class="mobile-divider"></div>
+    {/if}
 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 500;
-  }
+    <a href="/" class:active={$page.url.pathname === "/"} onclick={() => burgerAbierto = false}>
+      <i class="bi bi-house"></i> Inicio
+    </a>
 
-  .brand-dot {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #1D9E75;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 600;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .links {
-    display: flex;
-    gap: 4px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .links a {
-    display: block;
-    padding: 6px 14px;
-    border-radius: 6px;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 400;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .links a:hover,
-  .links a.active {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-</style>
+    {#if usuario}
+      <a href={meta.href} class:active={$page.url.pathname === meta.href} onclick={() => burgerAbierto = false}>
+        <i class="bi bi-columns-gap"></i> Mi panel
+      </a>
+      <div class="mobile-divider"></div>
+      <a href="/Login" onclick={() => burgerAbierto = false} style="color:rgba(255,100,100,0.85)">
+        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+      </a>
+    {:else}
+      <a href="/Login" onclick={() => burgerAbierto = false}>
+        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+      </a>
+    {/if}
+  </div>
+{/if}
