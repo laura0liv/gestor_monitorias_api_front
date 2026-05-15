@@ -66,7 +66,7 @@
 
   {:else if filtradas.length === 0}
     <div class="empty-state">
-      <div class="empty-icon">📅</div>
+      <div class="empty-icon"></div>
       <div class="empty-title">No hay sesiones {filtro !== "todas" ? `con estado "${filtro}"` : "agendadas"}</div>
     </div>
 

@@ -92,9 +92,9 @@
     <!-- CONTENIDO -->
     <main class="content">
       {#if modulo === "disponibilidad"}
-        <Disponibilidad idTutor={tutor.id} />
+        <Disponibilidad idTutor={10} />
       {:else if modulo === "materias"}
-        <MisMateriasAsignadas idTutor={tutor.id} />
+        <MisMateriasAsignadas idTutor={10} />
       {:else if modulo === "sesiones"}
         <SesionesAgendadas idTutor={tutor.id} />
       {:else if modulo === "resultado"}

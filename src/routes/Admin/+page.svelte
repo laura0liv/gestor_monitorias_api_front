@@ -1,156 +1,383 @@
 <script>
-  import "bootstrap/dist/css/bootstrap.min.css";
   import { onMount } from "svelte";
   import CrudUsuarios from "$lib/components/Admin/CrudUsuarios.svelte";
   import CrudMaterias from "$lib/components/Admin/CrudMaterias.svelte";
-  import CrudTutores from "$lib/components/Admin/CrudTutores.svelte";
+  import CrudTutores  from "$lib/components/Admin/CrudTutores.svelte";
 
   let modulo = $state("dashboard");
 
-  let grupos = $state({
-    gestion: true,
-  });
+  // Estado de grupos colapsables
+  let grupos = $state({ gestion: true });
 
   const meta = {
-    dashboard:    { titulo: "Dashboard",           crumb: "Inicio / Dashboard" },
-    usuarios:     { titulo: "Gestión de Usuarios", crumb: "Gestión / Usuarios" },
-    materias:     { titulo: "Gestión de Materias", crumb: "Gestión / Materias" },
-    tutores:      { titulo: "Gestión de Tutores",  crumb: "Gestión / Tutores" },
-
+    dashboard: { titulo: "Dashboard",           crumb: "Inicio / Dashboard"    },
+    usuarios:  { titulo: "Gestión de Usuarios", crumb: "Gestión / Usuarios"    },
+    materias:  { titulo: "Gestión de Materias", crumb: "Gestión / Materias"    },
+    tutores:   { titulo: "Gestión de Tutores",  crumb: "Gestión / Tutores"     },
   };
+
+  const gestionItems = [
+    { id: "usuarios", label: "Usuarios", icon: "bi-people"      },
+    { id: "materias", label: "Materias", icon: "bi-book"        },
+    { id: "tutores",  label: "Tutores",  icon: "bi-mortarboard" },
+  ];
 
   let tituloActual = $derived(meta[modulo]?.titulo ?? modulo);
   let crumbActual  = $derived(meta[modulo]?.crumb  ?? modulo);
-
-  onMount(async () => {
-    const bootstrap = await import("bootstrap");
-    return () => {};
-  });
 </script>
 
-<div class="d-flex" style="min-height: 100vh;">
+<div class="layout">
 
   <!-- SIDEBAR -->
-  <nav class="d-flex flex-column bg-dark text-white" style="width: 240px; min-width: 240px;">
+  <aside class="sidebar">
 
-    <!-- Header -->
-    <div class="px-3 py-3 border-bottom border-secondary">
-      <small class="text-uppercase text-secondary" style="letter-spacing: .08em; font-size: 11px;">Sistema</small>
-      <div class="fw-semibold fs-6 mt-1">Tutorías Admin</div>
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+      <div>
+        <div class="brand-name">Monitorías</div>
+        <div class="brand-sub">Panel de administración</div>
+      </div>
     </div>
 
     <!-- Nav -->
-    <div class="flex-grow-1 overflow-auto py-2">
+    <nav class="sidebar-nav">
 
       <!-- Dashboard -->
       <button
-        class="btn btn-link text-decoration-none w-100 text-start px-3 py-2 d-flex align-items-center gap-2"
-        class:text-white={modulo !== "dashboard"}
+        class="nav-item"
         class:active={modulo === "dashboard"}
-        style={modulo === "dashboard" ? "color:#fff; background:rgba(255,255,255,0.12); border-radius:6px;" : "color:rgba(255,255,255,0.65);"}
         onclick={() => modulo = "dashboard"}
       >
-        <i class="bi bi-grid-fill" style="font-size:14px"></i>
-        Dashboard
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
       </button>
 
       <!-- Grupo Gestión -->
-      <div class="mt-1">
+      <div class="nav-group">
         <button
-          class="btn btn-link text-decoration-none w-100 text-start px-3 py-2 d-flex align-items-center gap-2"
-          style="color:rgba(255,255,255,0.65);"
+          class="nav-group-toggle"
           onclick={() => grupos.gestion = !grupos.gestion}
         >
-          <i class="bi bi-people-fill" style="font-size:14px"></i>
-          <span class="flex-grow-1">Gestión</span>
-          <i class="bi" class:bi-chevron-down={grupos.gestion} class:bi-chevron-right={!grupos.gestion} style="font-size:11px"></i>
+          <span class="nav-group-label">Gestión</span>
+          <i class="bi" class:bi-chevron-down={grupos.gestion} class:bi-chevron-right={!grupos.gestion}></i>
         </button>
+
         {#if grupos.gestion}
-          <div class="ms-3 border-start border-secondary ps-2">
-            {#each ["usuarios","materias","tutores"] as m}
+          <div class="nav-group-items">
+            {#each gestionItems as item}
               <button
-                class="btn btn-link text-decoration-none w-100 text-start px-2 py-1"
-                style={modulo === m
-                  ? "color:#fff; background:rgba(255,255,255,0.12); border-radius:6px; font-size:13px;"
-                  : "color:rgba(255,255,255,0.55); font-size:13px;"}
-                onclick={() => modulo = m}
+                class="nav-item nav-item-sub"
+                class:active={modulo === item.id}
+                onclick={() => modulo = item.id}
               >
-                {meta[m].titulo}
+                <i class="bi {item.icon}"></i>
+                <span>{item.label}</span>
               </button>
             {/each}
           </div>
         {/if}
       </div>
 
-   
-    
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <a href="/Login" class="nav-item" style="text-decoration:none">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Cerrar sesión</span>
+      </a>
+      <div class="version">v1.0.0</div>
     </div>
 
-    <!-- Footer del sidebar -->
-    <div class="px-3 py-3 border-top border-secondary">
-      <small class="text-secondary" style="font-size:12px">v1.0.0</small>
-    </div>
-
-  </nav>
+  </aside>
 
   <!-- MAIN -->
-  <div class="d-flex flex-column flex-grow-1 bg-light">
+  <div class="main">
 
     <!-- TOPBAR -->
-    <header class="bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between shadow-sm">
+    <header class="topbar">
       <div>
-        <h5 class="mb-0 fw-semibold">{tituloActual}</h5>
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb mb-0" style="font-size:12px;">
-            {#each crumbActual.split(" / ") as parte, i}
-              <li class="breadcrumb-item" class:active={i === crumbActual.split(" / ").length - 1}>
-                {parte}
-              </li>
-            {/each}
-          </ol>
-        </nav>
+        <h1 class="topbar-title">{tituloActual}</h1>
+        <div class="breadcrumb">
+          {#each crumbActual.split(" / ") as parte, i}
+            <span class:active={i === crumbActual.split(" / ").length - 1}>{parte}</span>
+            {#if i < crumbActual.split(" / ").length - 1}
+              <span class="sep">/</span>
+            {/if}
+          {/each}
+        </div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-secondary">Admin</span>
-        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold"
-             style="width:34px;height:34px;font-size:13px;">A</div>
+      <div class="topbar-right">
+        <span class="role-badge">Administrador</span>
+        <div class="topbar-avatar">A</div>
       </div>
     </header>
 
-    <!-- CONTENIDO -->
-    <main class="flex-grow-1 p-4 overflow-auto">
+    <!-- CONTENT -->
+    <main class="content">
 
       {#if modulo === "dashboard"}
-      
-      <div style="position: relative; width: 100%; padding-bottom: 62%;">
-        <iframe 
-          title="primer dashboard"
-          src="https://app.powerbi.com/reportEmbed?reportId=dad9ee80-7bec-4fb7-8b0f-477937a604e3&autoAuth=true&ctid=740be6bd-fd36-470e-94d9-0f0c777fadb9"
-          frameborder="0"
-          allowFullScreen="true"
-          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-        </iframe>
-      </div>
+        <div class="dashboard-embed">
+          <iframe
+            title="Dashboard Power BI"
+            src="https://app.powerbi.com/reportEmbed?reportId=dad9ee80-7bec-4fb7-8b0f-477937a604e3&autoAuth=true&ctid=740be6bd-fd36-470e-94d9-0f0c777fadb9"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
 
       {:else if modulo === "usuarios"}
         <CrudUsuarios />
 
       {:else if modulo === "materias"}
         <CrudMaterias />
-      
+
       {:else if modulo === "tutores"}
         <CrudTutores />
 
       {:else}
-        <div class="card border-0 shadow-sm">
-          <div class="card-body text-center py-5 text-muted">
-            <i class="bi bi-tools fs-1 d-block mb-3"></i>
-            <h6>{tituloActual}</h6>
-            <p class="small mb-0">Módulo en construcción.</p>
-          </div>
+        <div class="placeholder-card">
+          <i class="bi bi-tools placeholder-icon"></i>
+          <h6>{tituloActual}</h6>
+          <p>Módulo en construcción.</p>
         </div>
       {/if}
 
     </main>
   </div>
 </div>
+
+<style>
+  :global(body) { margin: 0; font-family: system-ui, sans-serif; }
+
+  .layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f5f3;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: #010A55;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Brand */
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 1px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* Nav */
+  .sidebar-nav {
+    flex: 1;
+    padding: .75rem .5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover  { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
+  .nav-item i      { font-size: 14px; flex-shrink: 0; }
+
+  /* Sub items */
+  .nav-item-sub {
+    padding: 7px 10px 7px 14px;
+    font-size: 12px;
+  }
+
+  /* Group */
+  .nav-group { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
+
+  .nav-group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 5px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .nav-group-toggle i {
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .nav-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    margin-left: 12px;
+  }
+
+  /* Footer */
+  .sidebar-footer {
+    padding: .75rem .5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .version {
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    padding: 4px 12px 0;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* Topbar */
+  .topbar {
+    background: #fff;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    padding: .875rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-title { font-size: 16px; font-weight: 500; margin: 0 0 3px; }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #aaa;
+  }
+  .breadcrumb span.active { color: #555; }
+  .breadcrumb .sep        { color: #ccc; }
+
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+  .role-badge {
+    background: #FDECEA;
+    color: #8B1A1A;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .topbar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #010A55;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  /* Content */
+  .content { flex: 1; padding: 1.5rem; overflow-y: auto; }
+
+  /* Dashboard embed */
+  .dashboard-embed {
+    position: relative;
+    width: 100%;
+    padding-bottom: 62%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 0.5px solid rgba(0,0,0,0.08);
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .dashboard-embed iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  /* Placeholder */
+  .placeholder-card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    text-align: center;
+  }
+  .placeholder-icon { font-size: 2rem; margin-bottom: .75rem; }
+  .placeholder-card h6 { font-size: 14px; font-weight: 500; color: #666; margin: 0 0 4px; }
+  .placeholder-card p  { font-size: 13px; margin: 0; }
+</style>
