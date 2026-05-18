@@ -2,16 +2,16 @@
   import Hero from '$lib/components/HomePage/Hero.svelte';
   import Features from '$lib/components/HomePage/Features.svelte';
   import AboutSection from '$lib/components/HomePage/AboutSection.svelte';
-  import RolesSection from '$lib/components/HomePage/RolesSection.svelte';
-  import ProcessSection from '$lib/components/HomePage/ProcessSection.svelte';
+  import RolesSection from '$lib/components/HomePage/Rolessection.svelte';
+  import ProcessSection from '$lib/components/HomePage/Processsection.svelte';
   import Footer from '$lib/components/HomePage/Footer.svelte';
 </script>
 
 <div class="homepage">
   <Hero />
   <Features />
-   <RolesSection />
-  <ProcessSection />
+  <Rolessection />
+  <Processsection />
   <Footer />
 </div>
 
