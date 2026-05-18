@@ -1,43 +1,51 @@
 <script>
   import { goto } from '$app/navigation';
   import { API } from '$lib/services/api';
+  import { usuario } from '$lib/stores/user';
   import '$lib/styles/login.css';
 
-  let email         = $state('');
-  let password      = $state('');
-  let remember      = $state(false);
-  let showPassword  = $state(false);
-  let cargando      = $state(false);
-  let error         = $state('');
+  let email = '';
+  let password = '';
+  let remember = false;
+  let showPassword = false;
+  let cargando = false;
+  let error = '';
 
   async function handleLogin(e) {
     e.preventDefault();
-    error    = '';
+    error = '';
     cargando = true;
 
     try {
       const res = await fetch(`${API}/auth/login`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email, contrasena: password }),
+        body: JSON.stringify({
+          correo: email,
+          contrasena: password
+        }),
       });
 
-      if (!res.ok) {
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
         error = 'Correo o contraseña incorrectos';
         return;
       }
 
-      const usuario = await res.json();
+      // 🔥 guardar usuario real
+      usuario.set(data.user);
 
-      const rutas = { '1': '/Admin', '2': '/Tutor', '3': '/Estudiante' };
-      const ruta  = rutas[String(usuario.id_rol)];
+      // 🔥 redirección por rol
+      const rutas = {
+        '1': '/Admin',
+        '2': '/Tutor',
+        '3': '/Estudiante'
+      };
 
-      if (ruta) {
-        goto(ruta);
-      } else {
-        error = 'Rol de usuario no reconocido';
-      }
-    } catch {
+      goto(rutas[String(data.user.id_rol)]);
+
+    } catch (err) {
       error = 'No se pudo conectar con el servidor';
     } finally {
       cargando = false;
