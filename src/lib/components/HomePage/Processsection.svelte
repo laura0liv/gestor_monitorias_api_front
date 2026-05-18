@@ -1,3 +1,4 @@
+<!-- ProcessSection -->
 <script>
   const steps = [
     {
