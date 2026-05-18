@@ -1,13 +1,27 @@
 <script>
-  // Aquí podrías agregar lógica si lo necesitas
+  import Hero from './Hero.svelte';
+  import Features from './Features.svelte';
+  import AboutSection from './AboutSection.svelte';
+  import RolesSection from './RolesSection.svelte';
+  import ProcessSection from './ProcessSection.svelte';
+  import Footer from './Footer.svelte';
 </script>
-<!-- Contenido centrado -->
-<div class="d-flex justify-content-center align-items-start vh-100">
-  <div class="text-center mt-5">
-    <h1>Bienvenidos a Gestion de Tutorias</h1>
-    <p>
-      Desde aqui puedes gestionar tutorias y revisar tus tutorias programadas. Para acceder a tu perfil y gestionar tus tutorias, haz clic en el botón "Login" en la esquina superior derecha.
-    </p>
-  </div>
+
+<div class="homepage">
+  <Hero />
+  <Features />
+   <RolesSection />
+  <ProcessSection />
+  <Footer />
 </div>
 
+<style>
+  @import '$lib/styles/homepage.css';
+
+  .homepage {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+</style>

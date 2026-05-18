@@ -2,9 +2,7 @@
   import { onMount } from "svelte";
   import { API } from '$lib/services/api';
 
-
   let { idEstudiante, limiteMonitorias = 3, onExito } = $props();
-
 
   // ── Paso actual: 1 = materia, 2 = monitor, 3 = horario ──
   let paso = $state(1);

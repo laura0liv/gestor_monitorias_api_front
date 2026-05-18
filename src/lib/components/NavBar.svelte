@@ -1,127 +1,256 @@
 <script>
-  import { page } from '$app/stores';
-  import '../styles/navbar.css';   // ajusta la ruta según tu estructura
+  let menuOpen = false;
 
-  /**
-   * usuario: objeto del store de sesión o null si no está logueado.
-   * Forma esperada: { nombre, apellido, rol, email? }
-   * rol: "estudiante" | "monitor" | "admin"
-   */
-  let { usuario = null } = $props();
-
-  const ROL_META = {
-    estudiante: { label: "Estudiante", color: "#010A55", bg: "#EEF0FF", href: "/Estudiante" },
-    monitor:    { label: "Monitor",    color: "#085041", bg: "#E1F5EE", href: "/Tutor"      },
-    admin:      { label: "Admin",      color: "#8B1A1A", bg: "#FDECEA", href: "/Admin"      },
-  };
-
-  let meta          = $derived(usuario ? (ROL_META[usuario.rol] ?? ROL_META.estudiante) : null);
-  let menuAbierto   = $state(false);
-  let burgerAbierto = $state(false);
-
-  function cerrarDropdown(e) {
-    if (!e.target.closest('.profile-wrap')) menuAbierto = false;
+  function toggleMenu() {
+    menuOpen = !menuOpen;
   }
+
+  function closeMenu() {
+    menuOpen = false;
+  }
+
+  const links = [
+    { label: 'Inicio',   href: '/' },
+  ];
 </script>
 
-<svelte:window onclick={cerrarDropdown} />
-
-<!-- ── Navbar desktop ── -->
-<nav class="navbar">
-
-  <a href="/" class="brand">
-    <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
-    <div class="brand-text">
-      <span class="brand-name">Gestión Tutorías</span>
-      <span class="brand-sub">UniAtlántico</span>
+<nav class:menu-open={menuOpen}>
+  <!-- Marca -->
+  <a href="/" class="nav-brand" on:click={closeMenu}>
+    <div class="nav-logo" aria-hidden="true">U</div>
+    <div>
+      <div class="nav-title">Corporación Universitaria Latinoamericana</div>
+      <div class="nav-subtitle">Sistema de Tutorías</div>
     </div>
   </a>
 
-  <ul class="nav-links">
-    <li><a href="/" class:active={$page.url.pathname === "/"}>Inicio</a></li>
-    {#if usuario}
-      <li>
-        <a href={meta.href} class:active={$page.url.pathname === meta.href}>Mi panel</a>
-      </li>
-    {/if}
-  </ul>
-
-  <div class="nav-right">
-    {#if !usuario}
-      <a href="/Login" class="btn-login">
-        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
-      </a>
-    {:else}
-      <div class="profile-wrap">
-        <button class="profile-btn" onclick={() => menuAbierto = !menuAbierto}>
-          <div class="profile-avatar">{usuario.nombre[0]}{usuario.apellido[0]}</div>
-          <div class="profile-info">
-            <span class="profile-nombre">{usuario.nombre} {usuario.apellido}</span>
-            <span class="profile-rol" style="background:{meta.bg}; color:{meta.color}">
-              {meta.label}
-            </span>
-          </div>
-          <i class="bi bi-chevron-down chevron" class:open={menuAbierto}></i>
-        </button>
-
-        {#if menuAbierto}
-          <div class="dropdown">
-            <div class="dropdown-header">
-              <div class="dropdown-nombre">{usuario.nombre} {usuario.apellido}</div>
-              {#if usuario.email}
-                <div class="dropdown-email">{usuario.email}</div>
-              {/if}
-            </div>
-            <a href={meta.href} class="dropdown-item" onclick={() => menuAbierto = false}>
-              <i class="bi bi-columns-gap"></i> Mi panel
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="/Login" class="dropdown-item danger" onclick={() => menuAbierto = false}>
-              <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-            </a>
-          </div>
-        {/if}
-      </div>
-    {/if}
+  <!-- Links desktop -->
+  <div class="nav-links">
+    {#each links as link}
+      <a href={link.href}>{link.label}</a>
+    {/each}
+    <a href="/Login" class="btn-nav">Iniciar sesión</a>
   </div>
 
-  <!-- Hamburger — visible solo en móvil vía CSS -->
-  <button class="hamburger" onclick={() => burgerAbierto = !burgerAbierto}>
-    <i class="bi" class:bi-list={!burgerAbierto} class:bi-x={burgerAbierto}></i>
+  <!-- Botón hamburguesa -->
+  <button
+    class="hamburger"
+    aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+    aria-expanded={menuOpen}
+    on:click={toggleMenu}
+  >
+    <span class="bar bar-1"></span>
+    <span class="bar bar-2"></span>
+    <span class="bar bar-3"></span>
   </button>
-
 </nav>
 
-<!-- ── Menú móvil ── -->
-{#if burgerAbierto}
-  <div class="mobile-menu">
-    {#if usuario}
-      <div class="mobile-user">
-        <div class="mobile-avatar">{usuario.nombre[0]}{usuario.apellido[0]}</div>
-        <div class="mobile-user-info">
-          <span class="mobile-nombre">{usuario.nombre} {usuario.apellido}</span>
-          <span class="mobile-rol">{meta.label}</span>
-        </div>
-      </div>
-      <div class="mobile-divider"></div>
-    {/if}
-
-    <a href="/" class:active={$page.url.pathname === "/"} onclick={() => burgerAbierto = false}>
-      <i class="bi bi-house"></i> Inicio
-    </a>
-
-    {#if usuario}
-      <a href={meta.href} class:active={$page.url.pathname === meta.href} onclick={() => burgerAbierto = false}>
-        <i class="bi bi-columns-gap"></i> Mi panel
-      </a>
-      <div class="mobile-divider"></div>
-      <a href="/Login" onclick={() => burgerAbierto = false} style="color:rgba(255,100,100,0.85)">
-        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-      </a>
-    {:else}
-      <a href="/Login" onclick={() => burgerAbierto = false}>
-        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
-      </a>
-    {/if}
+<!-- Menú móvil -->
+<div class="mobile-menu" class:open={menuOpen} aria-hidden={!menuOpen}>
+  <div class="mobile-menu-inner">
+    {#each links as link}
+      <a href={link.href} class="mobile-link" on:click={closeMenu}>{link.label}</a>
+    {/each}
+    <a href="/Login" class="mobile-btn-nav" on:click={closeMenu}>Iniciar sesión</a>
   </div>
+</div>
+
+<!-- Overlay -->
+{#if menuOpen}
+  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+  <div class="overlay" on:click={closeMenu} aria-hidden="true"></div>
 {/if}
+
+<style>
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    background: rgba(13, 43, 78, 0.97);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    height: 68px;
+    border-bottom: #ffff;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .nav-logo {
+    width: 40px; height: 40px;
+    background: linear-gradient(#010A55, #010A55,#010A55);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color:  var(--white);
+    flex-shrink: 0;
+  }
+
+  .nav-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .nav-subtitle {
+    font-size: 11px;
+    color:  #ffff;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+
+  /* ── Links desktop ── */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    color:  #ffff;
+    font-size: 14px; font-weight: 400;
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  .btn-nav {
+    background: var(--blue);
+    color: var(--white) !important;
+    border-radius: 6px;
+    padding: 9px 22px;
+    font-size: 14px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-nav:hover {
+    background: var(--white) !important;
+    transform: translateY(-1px);
+    color: var(--navy) !important;
+  }
+
+  /* ── Hamburguesa ── */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px; height: 40px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+
+  .hamburger:hover { border-color: rgba(255,255,255,0.5); }
+
+  .bar {
+    display: block;
+    width: 18px; height: 1.5px;
+    background: var(--white);
+    border-radius: 2px;
+    transition:
+      transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+      opacity   0.25s ease;
+    transform-origin: center;
+  }
+
+  /* Animación → X cuando menú está abierto */
+  :global(nav.menu-open) .bar-1 { transform: translateY(6.5px)  rotate(45deg); }
+  :global(nav.menu-open) .bar-2 { opacity: 0; transform: scaleX(0); }
+  :global(nav.menu-open) .bar-3 { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* ── Menú móvil ── */
+  .mobile-menu {
+    position: fixed;
+    top: 68px; left: 0; right: 0;
+    z-index: 190;
+    background: rgba(10, 28, 50, 0.98);
+    backdrop-filter: blur(16px);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    border-bottom: 1px solid rgba(201, 146, 26, 0.2);
+  }
+
+  .mobile-menu.open { max-height: 420px; }
+
+  .mobile-menu-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.25rem 2rem;
+    gap: 0.25rem;
+  }
+
+  .mobile-link {
+    color: rgba(255,255,255,0.75);
+    font-size: 16px; font-weight: 400;
+    text-decoration: none;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .mobile-link:hover {
+    background: rgba(255,255,255,0.07);
+    color: var(--gold-light);
+  }
+
+  .mobile-btn-nav {
+    display: block;
+    margin-top: 0.75rem;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 15px; font-weight: 600;
+    text-decoration: none;
+    padding: 13px 1rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+
+  .mobile-btn-nav:hover { background: var(--gold-light); }
+
+  /* ── Overlay ── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    top: 68px;
+    z-index: 180;
+    background: rgba(0,0,0,0.45);
+  }
+
+  /* ── Breakpoints ── */
+  @media (max-width: 860px) {
+    nav { padding: 0 1.25rem; }
+    .nav-subtitle { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .nav-title { font-size: 15px; }
+  }
+</style>
