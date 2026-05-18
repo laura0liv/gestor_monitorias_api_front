@@ -26,7 +26,7 @@
     <div class="hero-btns">
       <a href="/Login" class="btn-primary">Agendar tutoría</a>
     </div>
-
+  </div>
 </section>
 
 <style>
