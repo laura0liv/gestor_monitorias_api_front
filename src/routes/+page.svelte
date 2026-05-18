@@ -1,9 +1,8 @@
 <script>
   import Hero from '$lib/components/HomePage/Hero.svelte';
   import Features from '$lib/components/HomePage/Features.svelte';
-  import AboutSection from '$lib/components/HomePage/AboutSection.svelte';
-  import RolesSection from '$lib/components/HomePage/Rolessection.svelte';
-  import ProcessSection from '$lib/components/HomePage/Processsection.svelte';
+   import Rolessection from '$lib/components/HomePage/Rolessection.svelte';
+  import Processsection from '$lib/components/HomePage/Processsection.svelte';
   import Footer from '$lib/components/HomePage/Footer.svelte';
 </script>
 
