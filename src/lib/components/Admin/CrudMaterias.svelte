@@ -2,151 +2,135 @@
   import { onMount } from 'svelte';
   import { API } from '$lib/services/api';
   import DataTable from '$lib/components/DataTable.svelte';
-  import '$lib/styles/data-table.css';
-  import '$lib/styles/crud-materias.css';
 
-  // ─── Estado ───────────────────────────────────────────────────────────────
-  let materias = $state([]);
-  let cargando = $state(false);
-  let error    = $state('');
-  let success  = $state('');
-  let editando = $state(false);
+  let materias    = $state([]);
+  let programas   = $state([]);
+  let cargando    = $state(false);
+  let error       = $state('');
+  let success     = $state('');
+  let editando    = $state(false);
 
   let materia = $state({
-    id_materia:     null,
-    nombre_materia: '',
-    codigo_materia: '',
-    creditos:       '',
-    id_programa:    ''
+    id_materia:      null,
+    nombre_materia:  '',
+    codigo_materia:  '',
+    creditos:        '',
+    id_programa:     ''
   });
 
-  // ─── Columnas para DataTable ──────────────────────────────────────────────
-  // render()       → HTML que se muestra en la celda de la tabla
-  // exportRender() → texto plano para CSV / PDF (sin HTML)
-  const columns = [
-    {
-      key:   'nombre_materia',
-      label: 'Materia',
-      render: row => `<span class="fw">${row.nombre_materia}</span>`,
-    },
-    {
-      key:          'codigo_materia',
-      label:        'Código',
-      render:       row => `<span class="code-badge">${row.codigo_materia}</span>`,
-      exportRender: row => row.codigo_materia,
-    },
-    {
-      key:   'creditos',
-      label: 'Créditos',
-    },
-    {
-      key:   'id_programa',
-      label: 'Programa',
-    },
-  ];
-
-  // Campos sobre los que actúa el buscador del DataTable
-  const searchKeys = ['nombre_materia', 'codigo_materia', 'id_programa'];
-
-  // ─── Stats derivadas ──────────────────────────────────────────────────────
+  // ── Bug 3 fix: variables derivadas ──────────────────────────────────────
   let totalCreditos = $derived(
     materias.reduce((sum, m) => sum + Number(m.creditos || 0), 0)
   );
 
-  // ─── API: cargar ──────────────────────────────────────────────────────────
+  const columns = [
+    { key: 'nombre_materia',  label: 'Nombre'   },
+    { key: 'codigo_materia',  label: 'Código'   },
+    { key: 'creditos',        label: 'Créditos' },
+    { key: 'nombre_programa', label: 'Programa' },
+  ];
+
+  const searchKeys = ['nombre_materia', 'codigo_materia', 'nombre_programa'];
+  // ────────────────────────────────────────────────────────────────────────
+
   async function cargarMaterias() {
     cargando = true;
-    error = '';
     try {
       const res = await fetch(`${API}/materia/get_all_materia/`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       materias = await res.json();
-    } catch (e) {
-      error = e.message;
     } finally {
       cargando = false;
     }
   }
 
-  onMount(cargarMaterias);
-
-  // ─── API: crear ───────────────────────────────────────────────────────────
-  async function crearMateria() {
-    try {
-      const res = await fetch(`${API}/materia/create_materia/`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(materia),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      materias = [...materias, await res.json()];
-      limpiar();
-      flash('Materia creada correctamente');
-    } catch (e) {
-      error = e.message;
-    }
+  async function cargarProgramas() {
+    const res = await fetch(`${API}/programa/get_programas/`);
+    programas = await res.json();
   }
 
-  // ─── API: actualizar ──────────────────────────────────────────────────────
-  async function actualizarMateria() {
-    try {
-      const res = await fetch(`${API}/materia/update_materia/${materia.id_materia}`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(materia),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const actualizada = await res.json();
+  onMount(() => {
+    cargarMaterias();
+    cargarProgramas();
+  });
+
+  async function enviar(e) {
+    e.preventDefault();
+    error = '';
+
+    if (!materia.id_programa) {
+      error = "Selecciona un programa";
+      return;
+    }
+
+    const url = editando
+      ? `${API}/materia/update_materia/${materia.id_materia}`
+      : `${API}/materia/create_materia/`;
+
+    const res = await fetch(url, {
+      method: editando ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(materia)
+    });
+
+    if (!res.ok) {
+      error = await res.text();
+      return;
+    }
+
+    if (editando) {
+      // ── Bug 2 fix: reconstruir fila localmente ─────────────────────────
+      const prog = programas.find(p => p.id_programa == materia.id_programa);
+      const actualizada = { ...materia, nombre_programa: prog?.nombre_programa ?? '' };
       materias = materias.map(m =>
-        m.id_materia === actualizada.id_materia ? actualizada : m
+        m.id_materia === materia.id_materia ? actualizada : m
       );
-      limpiar();
-      flash('Materia actualizada');
-    } catch (e) {
-      error = e.message;
+    } else {
+      const data = await res.json();
+      // El POST retorna solo {id_materia, message}, completamos el objeto
+      const prog = programas.find(p => p.id_programa == materia.id_programa);
+      materias = [...materias, {
+        ...materia,
+        id_materia:      data.id_materia,
+        nombre_programa: prog?.nombre_programa ?? ''
+      }];
     }
+
+    limpiar();
+    // ── Bug 4 fix: limpiar mensaje de éxito ────────────────────────────
+    success = "Operación exitosa";
+    setTimeout(() => success = '', 3000);
   }
 
-  // ─── API: eliminar ────────────────────────────────────────────────────────
-  async function eliminarMateria(id) {
-    if (!confirm('¿Eliminar esta materia?')) return;
-    try {
-      const res = await fetch(`${API}/materia/delete_materia/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      materias = materias.filter(m => m.id_materia !== id);
-      flash('Materia eliminada');
-    } catch (e) {
-      error = e.message;
-    }
-  }
-
-  // ─── Helpers ──────────────────────────────────────────────────────────────
   function editarMateria(m) {
-    materia  = { ...m };
-    editando = true;
+    materia   = { ...m };
+    editando  = true;
   }
 
   function limpiar() {
-    materia  = { id_materia: null, nombre_materia: '', codigo_materia: '', creditos: '', id_programa: '' };
+    materia = {
+      id_materia:     null,
+      nombre_materia: '',
+      codigo_materia: '',
+      creditos:       '',
+      id_programa:    ''
+    };
     editando = false;
   }
 
-  function flash(msg) {
-    success = msg;
-    setTimeout(() => { success = ''; }, 3000);
-  }
-
-  function enviar(e) {
-    e.preventDefault();
-    editando ? actualizarMateria() : crearMateria();
+  async function eliminarMateria(id) {
+    const res = await fetch(`${API}/materia/delete_materia/${id}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      error = "Error al eliminar la materia";
+      return;
+    }
+    materias = materias.filter(m => m.id_materia !== id);
   }
 </script>
 
 <div class="page">
-
-  <!-- ── Encabezado ── -->
+  <!-- Encabezado -->
   <div class="page-header">
     <div>
       <h1 class="page-title">Gestión de materias</h1>
@@ -155,7 +139,7 @@
     <span class="badge-pill">{materias.length} materias</span>
   </div>
 
-  <!-- ── Stats ── -->
+  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat">
       <div class="stat-label">Total materias</div>
@@ -167,11 +151,11 @@
     </div>
   </div>
 
-  <!-- ── Alertas ── -->
+  <!-- Alertas -->
   {#if error}
     <div class="alert alert-danger">
       {error}
-      <button class="alert-close" type="button" aria-label="Cerrar" onclick={() => error = ''}>✕</button>
+      <button class="alert-close" type="button" onclick={() => error = ''}>✕</button>
     </div>
   {/if}
 
@@ -179,7 +163,7 @@
     <div class="alert alert-success">{success}</div>
   {/if}
 
-  <!-- ── Formulario crear / editar ── -->
+  <!-- Formulario -->
   <div class="form-panel">
     <div class="panel-label">
       {editando ? 'Editar materia' : 'Agregar nueva materia'}
@@ -187,75 +171,47 @@
 
     <form onsubmit={enviar}>
       <div class="form-row">
-
         <div class="field">
-          <label for="nombre_materia">Nombre materia</label>
-          <input
-            id="nombre_materia"
-            bind:value={materia.nombre_materia}
-            placeholder="Ej. Cálculo Diferencial"
-            required
-          />
+          <label for="nombre_materia">Nombre de la materia</label>
+          <input id="nombre_materia" bind:value={materia.nombre_materia} required />
         </div>
 
         <div class="field">
           <label for="codigo_materia">Código</label>
-          <input
-            id="codigo_materia"
-            bind:value={materia.codigo_materia}
-            placeholder="Ej. MAT-101"
-            required
-          />
+          <input id="codigo_materia" bind:value={materia.codigo_materia} required />
         </div>
 
         <div class="field">
           <label for="creditos">Créditos</label>
-          <input
-            id="creditos"
-            type="number"
-            min="1"
-            bind:value={materia.creditos}
-            required
-          />
+          <input id="creditos" type="number" min="1" bind:value={materia.creditos} required />
         </div>
 
         <div class="field">
-          <label for="id_programa">ID Programa</label>
-          <input
-            id="id_programa"
-            type="number"
-            bind:value={materia.id_programa}
-            required
-          />
+          <label for="id_programa">Programa</label>
+          <select id="id_programa" bind:value={materia.id_programa} required>
+            <option value="">Seleccione un programa...</option>
+            {#each programas as p}
+              <option value={p.id_programa}>
+                {p.nombre_programa} 
+                {#if p.facultad} — {p.facultad}{/if}
+              </option>
+            {/each}
+          </select>
         </div>
 
         <div class="field field-actions">
-          <div class="actions">
-            <button type="submit" class="btn btn-success">
-              {editando ? 'Guardar cambios' : 'Crear materia'}
-            </button>
-            {#if editando}
-              <button type="button" class="btn btn-ghost" onclick={limpiar}>
-                Cancelar
-              </button>
-            {/if}
-          </div>
+          <button type="submit" class="btn btn-success">
+            {editando ? 'Guardar cambios' : 'Crear materia'}
+          </button>
+          {#if editando}
+            <button type="button" class="btn btn-ghost" onclick={limpiar}>Cancelar</button>
+          {/if}
         </div>
-
       </div>
     </form>
   </div>
 
-  <!-- ── Tabla con búsqueda, paginación y exportación ── -->
-  <!--
-    DataTable maneja internamente:
-      · buscador (filtra por searchKeys)
-      · paginación (8 filas por defecto)
-      · exportar CSV / JSON / PDF (vía dataTableUtils.js)
-
-    El slot #acciones recibe { row } con la fila actual
-    y renderiza los botones editar / eliminar de esta vista.
-  -->
+  <!-- Tabla -->
   <DataTable
     data={materias}
     {columns}
@@ -265,21 +221,12 @@
     emptyText="No hay materias registradas"
   >
     {#snippet acciones({ row })}
-      <button
-        class="act-btn warn"
-        type="button"
-        onclick={() => editarMateria(row)}
-      >
+      <button class="act-btn warn" type="button" onclick={() => editarMateria(row)}>
         Editar
       </button>
-      <button
-        class="act-btn danger"
-        type="button"
-        onclick={() => eliminarMateria(row.id_materia)}
-      >
+      <button class="act-btn danger" type="button" onclick={() => eliminarMateria(row.id_materia)}>
         Eliminar
       </button>
     {/snippet}
   </DataTable>
-
 </div>

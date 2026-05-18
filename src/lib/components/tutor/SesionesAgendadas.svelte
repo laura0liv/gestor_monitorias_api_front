@@ -1,78 +1,251 @@
 <script>
   import { onMount } from "svelte";
+  import { API } from "$lib/services/api";
 
   let { idTutor } = $props();
 
-  const API = "http://127.0.0.1:8000";
-  let sesiones = $state([]);
-  let cargando = $state(false);
-  let error    = $state("");
-  let filtro   = $state("todas");   // todas | pendientes | confirmadas | completadas
+  let monitorias = $state([]);
+  let cargando   = $state(false);
+  let error      = $state("");
+  let filtro     = $state("todas");
+
+  // ─────────────────────────────────────────────
+  // ESTADOS
+  // Backend:
+  // Pendiente | Programada | Completada | Cancelada | Rechazada
+  // Frontend:
+  // pendiente | programada | completada | cancelada | rechazada
+  // ─────────────────────────────────────────────
 
   const ESTADOS = {
-    pendiente:   { label:"Pendiente",   bg:"#FAEEDA", color:"#633806" },
-    confirmada:  { label:"Confirmada",  bg:"#E1F5EE", color:"#085041" },
-    completada:  { label:"Completada",  bg:"#E6F1FB", color:"#0C447C" },
-    cancelada:   { label:"Cancelada",   bg:"#FCEBEB", color:"#791F1F" },
+    pendiente: {
+      label: "Pendiente",
+      bg: "#FFF8E1",
+      color: "#7D5A00",
+      icon: "bi-hourglass-split"
+    },
+
+    programada: {
+      label: "Programada",
+      bg: "#E1F5EE",
+      color: "#085041",
+      icon: "bi-calendar-check"
+    },
+
+    completada: {
+      label: "Completada",
+      bg: "#EEF0FF",
+      color: "#2D4E8A",
+      icon: "bi-patch-check"
+    },
+
+    cancelada: {
+      label: "Cancelada",
+      bg: "#FCEBEB",
+      color: "#A32D2D",
+      icon: "bi-x-circle"
+    },
+
+    rechazada: {
+      label: "Rechazada",
+      bg: "#FDECEC",
+      color: "#B42318",
+      icon: "bi-slash-circle"
+    }
   };
+
+  // ─────────────────────────────────────────────
+  // NORMALIZAR DATA
+  // ─────────────────────────────────────────────
+
+  function normalizar(m) {
+    return {
+      ...m,
+
+      estado: (m.estado ?? "").toLowerCase(),
+
+      estudiante:
+        m.estudiante ??
+        `${m.nombre_estudiante ?? ""} ${m.apellido_estudiante ?? ""}`.trim(),
+
+      materia:
+        m.nombre_materia ?? "Sin materia",
+
+      aula:
+        m.nombre_aula
+          ? `${m.nombre_aula}${m.bloque ? ` · ${m.bloque}` : ""}`
+          : "Sin aula",
+
+      hora_inicio:
+        m.hora_inicio?.slice(0, 5) ?? "",
+
+      hora_fin:
+        m.hora_fin?.slice(0, 5) ?? ""
+    };
+  }
+
+  // ─────────────────────────────────────────────
+  // CARGAR MONITORÍAS
+  // ─────────────────────────────────────────────
 
   onMount(async () => {
     cargando = true;
+
     try {
-      const res = await fetch(`${API}/sesion/get_sesiones_tutor/${idTutor}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      sesiones = await res.json();
-    } catch (e) { error = e.message; }
-    finally { cargando = false; }
+      const res = await fetch(`${API}/monitorias/tutor/${idTutor}`);
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      monitorias = data.map(normalizar);
+
+    } catch (e) {
+      error = e.message;
+    } finally {
+      cargando = false;
+    }
   });
 
-  let filtradas = $derived(
+  // ─────────────────────────────────────────────
+  // FILTRO
+  // ─────────────────────────────────────────────
+
+  let monitoriasFiltradas = $derived(
     filtro === "todas"
-      ? sesiones
-      : sesiones.filter(s => s.estado === filtro)
+      ? monitorias
+      : monitorias.filter(m => m.estado === filtro)
   );
 
-  function formatFecha(f) {
-    if (!f) return "—";
-    return new Date(f).toLocaleDateString("es-CO", { weekday:"short", day:"2-digit", month:"short" });
+  // ─────────────────────────────────────────────
+  // CONTEOS
+  // ─────────────────────────────────────────────
+
+  const FILTROS = [
+    { id: "todas",      label: "Todas" },
+    { id: "pendiente",  label: "Pendientes" },
+    { id: "programada", label: "Programadas" },
+    { id: "completada", label: "Completadas" },
+    { id: "cancelada",  label: "Canceladas" },
+    { id: "rechazada",  label: "Rechazadas" }
+  ];
+
+  let conteos = $derived(
+    FILTROS.reduce((acc, f) => {
+
+      acc[f.id] =
+        f.id === "todas"
+          ? monitorias.length
+          : monitorias.filter(m => m.estado === f.id).length;
+
+      return acc;
+
+    }, {})
+  );
+
+  // ─────────────────────────────────────────────
+  // FECHA
+  // ─────────────────────────────────────────────
+
+  function formatFecha(fecha) {
+    if (!fecha) return "—";
+
+    return new Date(fecha).toLocaleDateString("es-CO", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short"
+    });
   }
 </script>
 
 <div class="page">
 
+  <!-- HEADER -->
   <div class="page-header">
+
     <div>
       <h2 class="section-title">Sesiones agendadas</h2>
-      <p class="section-sub">Revisa y gestiona tus próximas monitorías</p>
+
+      <p class="section-sub">
+        Revisa tus monitorías asignadas
+      </p>
     </div>
-    <span class="badge-pill">{filtradas.length} sesiones</span>
+
+    <div class="badge-pill">
+      {monitoriasFiltradas.length} sesiones
+    </div>
+
   </div>
 
+  <!-- ERROR -->
   {#if error}
-    <div class="alert alert-danger">{error}</div>
+    <div class="alert alert-danger">
+      {error}
+
+      <button
+        class="alert-close"
+        onclick={() => error = ""}
+      >
+        ✕
+      </button>
+    </div>
   {/if}
 
   <!-- FILTROS -->
   <div class="filtros">
-    {#each ["todas","pendiente","confirmada","completada","cancelada"] as f}
-      <button class="filtro-btn" class:active={filtro === f} onclick={() => filtro = f}>
-        {f === "todas" ? "Todas" : ESTADOS[f]?.label ?? f}
+
+    {#each FILTROS as f}
+
+      <button
+        class="filtro-btn"
+        class:active={filtro === f.id}
+        onclick={() => filtro = f.id}
+      >
+        {f.label}
+
+        {#if conteos[f.id] > 0}
+          <span class="filtro-count">
+            {conteos[f.id]}
+          </span>
+        {/if}
       </button>
+
     {/each}
+
   </div>
 
+  <!-- LOADING -->
   {#if cargando}
-    <div class="loading">Cargando sesiones...</div>
 
-  {:else if filtradas.length === 0}
     <div class="empty-state">
-      <div class="empty-icon"></div>
-      <div class="empty-title">No hay sesiones {filtro !== "todas" ? `con estado "${filtro}"` : "agendadas"}</div>
+      <div class="spinner"></div>
     </div>
 
+  <!-- EMPTY -->
+  {:else if monitoriasFiltradas.length === 0}
+
+    <div class="empty-state">
+
+      <i class="bi bi-journal-x empty-icon"></i>
+
+      <p>
+        No hay sesiones
+        {filtro !== "todas"
+          ? ` con estado "${FILTROS.find(f => f.id === filtro)?.label.toLowerCase()}"`
+          : ""}
+      </p>
+
+    </div>
+
+  <!-- TABLA -->
   {:else}
+
     <div class="card">
+
       <table>
+
         <thead>
           <tr>
             <th>#</th>
@@ -80,80 +253,328 @@
             <th>Materia</th>
             <th>Fecha</th>
             <th>Hora</th>
-            <th>Lugar</th>
+            <th>Aula</th>
             <th>Estado</th>
           </tr>
         </thead>
+
         <tbody>
-          {#each filtradas as s, i}
-            {@const est = ESTADOS[s.estado] ?? ESTADOS.pendiente}
+
+          {#each monitoriasFiltradas as m, i}
+
+            {@const st = ESTADOS[m.estado] ?? ESTADOS.pendiente}
+
             <tr>
-              <td class="muted">{i + 1}</td>
+
+              <td class="muted">
+                {i + 1}
+              </td>
+
               <td>
+
                 <div class="name-cell">
-                  <div class="avatar">{(s.nombre_estudiante ?? "?")[0]}</div>
-                  <span class="fw">{s.nombre_estudiante ?? "—"}</span>
+
+                  <div class="avatar">
+                    {m.estudiante?.[0] ?? "?"}
+                  </div>
+
+                  <span class="fw">
+                    {m.estudiante}
+                  </span>
+
                 </div>
+
               </td>
-              <td class="hint">{s.nombre_materia ?? "—"}</td>
-              <td class="hint">{formatFecha(s.fecha)}</td>
-              <td class="hint">{s.hora_inicio ?? "—"}</td>
-              <td class="hint">{s.lugar ?? "—"}</td>
+
+              <td class="hint">
+                {m.materia}
+              </td>
+
+              <td class="hint">
+                {formatFecha(m.fecha)}
+              </td>
+
+              <td class="hint">
+                {m.hora_inicio} - {m.hora_fin}
+              </td>
+
+              <td class="hint">
+                {m.aula}
+              </td>
+
               <td>
-                <span class="estado-badge" style="background:{est.bg};color:{est.color}">
-                  {est.label}
+
+                <span
+                  class="estado-badge"
+                  style="
+                    background:{st.bg};
+                    color:{st.color};
+                  "
+                >
+                  <i class="bi {st.icon}"></i>
+                  {st.label}
                 </span>
+
               </td>
+
             </tr>
+
           {/each}
+
         </tbody>
+
       </table>
+
     </div>
+
   {/if}
 
 </div>
 
 <style>
-  .page { display:flex; flex-direction:column; gap:1.25rem; }
-  .page-header { display:flex; align-items:flex-start; justify-content:space-between; }
-  .section-title { font-size:16px; font-weight:500; margin:0 0 3px; }
-  .section-sub { font-size:13px; color:#888; margin:0; }
-  .badge-pill { background:#E1F5EE; color:#085041; font-size:11px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap; }
-
-  .alert { padding:10px 14px; border-radius:8px; font-size:13px; }
-  .alert-danger { background:#FCEBEB; color:#A32D2D; border:0.5px solid #F09595; }
-
-  .filtros { display:flex; gap:6px; flex-wrap:wrap; }
-  .filtro-btn {
-    padding:5px 14px; border-radius:20px; font-size:12px; font-weight:500;
-    border:0.5px solid rgba(0,0,0,0.12); background:#fff; cursor:pointer; color:#555;
-    transition:background .12s;
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
-  .filtro-btn:hover { background:#f0f0f0; }
-  .filtro-btn.active { background:#010A55; color:#fff; border-color:#010A55; }
 
-  .loading { text-align:center; padding:3rem; color:#aaa; font-size:13px; }
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 3px;
+  }
+
+  .section-sub {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+  }
+
+  .badge-pill {
+    background: #EEF0FF;
+    color: #010A55;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .alert-danger {
+    background: #FCEBEB;
+    color: #A32D2D;
+    border: .5px solid #F09595;
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .filtros {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+
+    background: #fff;
+    border: .5px solid rgba(0,0,0,.08);
+
+    border-radius: 10px;
+    padding: 6px;
+  }
+
+  .filtro-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 5px 12px;
+
+    border-radius: 7px;
+    border: none;
+
+    background: transparent;
+
+    font-size: 12px;
+    color: #888;
+
+    cursor: pointer;
+
+    transition: .12s;
+  }
+
+  .filtro-btn:hover {
+    background: #f5f5f3;
+    color: #333;
+  }
+
+  .filtro-btn.active {
+    background: #010A55;
+    color: white;
+  }
+
+  .filtro-count {
+    background: rgba(255,255,255,.25);
+
+    font-size: 10px;
+    font-weight: 600;
+
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+
+  .filtro-btn:not(.active) .filtro-count {
+    background: rgba(0,0,0,.08);
+    color: #666;
+  }
+
+  .card {
+    background: white;
+    border: .5px solid rgba(0,0,0,.08);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 10px 1.25rem;
+
+    background: #fafafa;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    color: #888;
+
+    text-align: left;
+
+    border-bottom: .5px solid rgba(0,0,0,.08);
+  }
+
+  tbody tr {
+    border-bottom: .5px solid rgba(0,0,0,.06);
+  }
+
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #fafafa;
+  }
+
+  td {
+    padding: 12px 1.25rem;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .muted {
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  .hint {
+    color: #666;
+    font-size: 12px;
+  }
+
+  .fw {
+    font-weight: 500;
+  }
+
+  .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background: #EEF0FF;
+    color: #010A55;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    flex-shrink: 0;
+  }
+
+  .estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 4px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 500;
+  }
 
   .empty-state {
-    background:#fff; border:0.5px solid rgba(0,0,0,0.08); border-radius:12px;
-    padding:3rem; text-align:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    padding: 3rem;
+
+    color: #aaa;
+    font-size: 13px;
   }
-  .empty-icon  { font-size:36px; margin-bottom:.75rem; }
-  .empty-title { font-size:15px; font-weight:500; }
 
-  .card { background:#fff; border:0.5px solid rgba(0,0,0,0.08); border-radius:12px; overflow:hidden; }
-  table { width:100%; border-collapse:collapse; }
-  thead th { font-size:11px; font-weight:500; color:#888; padding:9px 1.25rem; text-align:left; border-bottom:0.5px solid rgba(0,0,0,0.08); background:#fafafa; }
-  tbody tr { border-bottom:0.5px solid rgba(0,0,0,0.06); }
-  tbody tr:last-child { border-bottom:none; }
-  tbody tr:hover { background:#fafafa; }
-  td { padding:10px 1.25rem; font-size:13px; vertical-align:middle; }
-  .muted { color:#aaa; font-size:12px; }
-  .hint  { color:#666; font-size:12px; }
-  .fw    { font-weight:500; }
+  .empty-icon {
+    font-size: 2rem;
+  }
 
-  .name-cell { display:flex; align-items:center; gap:8px; }
-  .avatar { width:28px; height:28px; border-radius:50%; background:#EEEDFE; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#3C3489; flex-shrink:0; }
+  .spinner {
+    width: 26px;
+    height: 26px;
 
-  .estado-badge { font-size:11px; padding:2px 9px; border-radius:20px; font-weight:500; }
+    border: 3px solid rgba(1,10,85,.12);
+    border-top-color: #010A55;
+
+    border-radius: 50%;
+
+    animation: spin .7s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 </style>

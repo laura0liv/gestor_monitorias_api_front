@@ -1,10 +1,10 @@
 <script>
-  import Hero from './Hero.svelte';
-  import Features from './Features.svelte';
-  import AboutSection from './AboutSection.svelte';
-  import RolesSection from './RolesSection.svelte';
-  import ProcessSection from './ProcessSection.svelte';
-  import Footer from './Footer.svelte';
+  import Hero from '$lib/components/HomePage/Hero.svelte';
+  import Features from '$lib/components/HomePage/Features.svelte';
+  import AboutSection from '$lib/components/HomePage/AboutSection.svelte';
+  import RolesSection from '$lib/components/HomePage/RolesSection.svelte';
+  import ProcessSection from '$lib/components/HomePage/ProcessSection.svelte';
+  import Footer from '$lib/components/HomePage/Footer.svelte';
 </script>
 
 <div class="homepage">

@@ -1,37 +1,49 @@
 <script>
   import { onMount } from "svelte";
-  import CrudUsuarios from "$lib/components/Admin/CrudUsuarios.svelte";
-  import CrudMaterias from "$lib/components/Admin/CrudMaterias.svelte";
-  import CrudTutores  from "$lib/components/Admin/CrudTutores.svelte";
+  import { usuario } from '$lib/stores/user';
+  import { goto } from '$app/navigation';
+  import CrudUsuarios from '$lib/components/Admin/CrudUsuarios.svelte';
+  import CrudMaterias from '$lib/components/Admin/CrudMaterias.svelte';
+  import CrudTutores  from '$lib/components/Admin/CrudTutores.svelte';
 
   let modulo = $state("dashboard");
-
-  // Estado de grupos colapsables
+  let user = $state(null);
   let grupos = $state({ gestion: true });
 
+  onMount(() => {
+    usuario.init();
+
+    let valorActual;
+    const unsub = usuario.subscribe(val => { valorActual = val; });
+    unsub();
+
+    if (!valorActual) { goto('/Login'); return; }
+    if (String(valorActual.id_rol) !== '1') { goto('/Login'); return; }
+
+    user = valorActual;
+  });
+
   const meta = {
-    dashboard: { titulo: "Dashboard",           crumb: "Inicio / Dashboard"    },
-    usuarios:  { titulo: "Gestión de Usuarios", crumb: "Gestión / Usuarios"    },
-    materias:  { titulo: "Gestión de Materias", crumb: "Gestión / Materias"    },
-    tutores:   { titulo: "Gestión de Tutores",  crumb: "Gestión / Tutores"     },
+    dashboard: { titulo: "Dashboard",  crumb: "Admin / Dashboard" },
+    usuarios:  { titulo: "Usuarios",   crumb: "Admin / Usuarios"  },
+    materias:  { titulo: "Materias",   crumb: "Admin / Materias"  },
+    tutores:   { titulo: "Tutores",    crumb: "Admin / Tutores"   },
   };
 
   const gestionItems = [
     { id: "usuarios", label: "Usuarios", icon: "bi-people"      },
     { id: "materias", label: "Materias", icon: "bi-book"        },
-    { id: "tutores",  label: "Tutores",  icon: "bi-mortarboard" },
+    { id: "tutores",  label: "Tutores",  icon: "bi-person-badge" },
   ];
 
   let tituloActual = $derived(meta[modulo]?.titulo ?? modulo);
   let crumbActual  = $derived(meta[modulo]?.crumb  ?? modulo);
 </script>
 
+{#if user}
 <div class="layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-
-    <!-- Brand -->
     <div class="sidebar-brand">
       <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
       <div>
@@ -40,10 +52,7 @@
       </div>
     </div>
 
-    <!-- Nav -->
     <nav class="sidebar-nav">
-
-      <!-- Dashboard -->
       <button
         class="nav-item"
         class:active={modulo === "dashboard"}
@@ -53,12 +62,8 @@
         <span>Dashboard</span>
       </button>
 
-      <!-- Grupo Gestión -->
       <div class="nav-group">
-        <button
-          class="nav-group-toggle"
-          onclick={() => grupos.gestion = !grupos.gestion}
-        >
+        <button class="nav-group-toggle" onclick={() => grupos.gestion = !grupos.gestion}>
           <span class="nav-group-label">Gestión</span>
           <i class="bi" class:bi-chevron-down={grupos.gestion} class:bi-chevron-right={!grupos.gestion}></i>
         </button>
@@ -78,24 +83,19 @@
           </div>
         {/if}
       </div>
-
     </nav>
 
-    <!-- Footer -->
     <div class="sidebar-footer">
-      <a href="/Login" class="nav-item" style="text-decoration:none">
+      <button class="nav-item" style="border:none; cursor:pointer;"
+        onclick={() => { usuario.logout(); goto('/Login'); }}>
         <i class="bi bi-box-arrow-left"></i>
         <span>Cerrar sesión</span>
-      </a>
+      </button>
       <div class="version">v1.0.0</div>
     </div>
-
   </aside>
 
-  <!-- MAIN -->
   <div class="main">
-
-    <!-- TOPBAR -->
     <header class="topbar">
       <div>
         <h1 class="topbar-title">{tituloActual}</h1>
@@ -110,13 +110,11 @@
       </div>
       <div class="topbar-right">
         <span class="role-badge">Administrador</span>
-        <div class="topbar-avatar">A</div>
+        <div class="topbar-avatar">{user.nombre[0]}</div>
       </div>
     </header>
 
-    <!-- CONTENT -->
     <main class="content">
-
       {#if modulo === "dashboard"}
         <div class="dashboard-embed">
           <iframe
@@ -143,239 +141,142 @@
           <p>Módulo en construcción.</p>
         </div>
       {/if}
-
     </main>
   </div>
+
 </div>
+{/if}
 
 <style>
   :global(body) { margin: 0; font-family: system-ui, sans-serif; }
 
-  .layout {
-    display: flex;
-    min-height: 100vh;
-    background: #f5f5f3;
-  }
+  .layout { display: flex; min-height: 100vh; background: #f5f5f3; }
 
-  /* ── SIDEBAR ── */
   .sidebar {
-    width: 220px;
-    min-width: 220px;
+    width: 220px; min-width: 220px;
     background: #010A55;
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
   }
 
-  /* Brand */
   .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 1.25rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
 
   .brand-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
+    width: 36px; height: 36px; border-radius: 9px;
     background: rgba(255,255,255,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 16px;
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; flex-shrink: 0;
   }
 
-  .brand-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    line-height: 1.3;
-  }
-
+  .brand-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; }
   .brand-sub {
-    font-size: 10px;
-    color: rgba(255,255,255,0.4);
-    margin-top: 1px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+    font-size: 10px; color: rgba(255,255,255,0.4);
+    margin-top: 1px; text-transform: uppercase; letter-spacing: .04em;
   }
 
-  /* Nav */
   .sidebar-nav {
-    flex: 1;
-    padding: .75rem .5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow-y: auto;
+    flex: 1; padding: .75rem .5rem;
+    display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
   }
 
   .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 7px;
-    border: none;
-    background: transparent;
-    color: rgba(255,255,255,0.6);
-    font-size: 13px;
-    cursor: pointer;
-    text-align: left;
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; padding: 8px 12px; border-radius: 7px;
+    border: none; background: transparent;
+    color: rgba(255,255,255,0.6); font-size: 13px;
+    cursor: pointer; text-align: left;
     transition: background .15s, color .15s;
   }
   .nav-item:hover  { background: rgba(255,255,255,0.08); color: #fff; }
   .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
-  .nav-item i      { font-size: 14px; flex-shrink: 0; }
+  .nav-item i { font-size: 14px; flex-shrink: 0; }
 
-  /* Sub items */
-  .nav-item-sub {
-    padding: 7px 10px 7px 14px;
-    font-size: 12px;
-  }
+  .nav-item-sub { padding: 7px 10px 7px 14px; font-size: 12px; }
 
-  /* Group */
   .nav-group { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
 
   .nav-group-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 5px 12px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 5px 12px;
+    border: none; background: transparent; cursor: pointer;
   }
 
   .nav-group-label {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 10px; font-weight: 600;
     color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    letter-spacing: .08em;
+    text-transform: uppercase; letter-spacing: .08em;
   }
 
-  .nav-group-toggle i {
-    font-size: 9px;
-    color: rgba(255,255,255,0.25);
-  }
+  .nav-group-toggle i { font-size: 9px; color: rgba(255,255,255,0.25); }
 
   .nav-group-items {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
+    display: flex; flex-direction: column; gap: 1px;
     padding-left: 8px;
     border-left: 1px solid rgba(255,255,255,0.08);
     margin-left: 12px;
   }
 
-  /* Footer */
   .sidebar-footer {
     padding: .75rem .5rem;
     border-top: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    display: flex; flex-direction: column; gap: 2px;
   }
 
-  .version {
-    font-size: 11px;
-    color: rgba(255,255,255,0.25);
-    padding: 4px 12px 0;
-  }
+  .version { font-size: 11px; color: rgba(255,255,255,0.25); padding: 4px 12px 0; }
 
-  /* ── MAIN ── */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
-  /* Topbar */
   .topbar {
     background: #fff;
     border-bottom: 0.5px solid rgba(0,0,0,0.08);
     padding: .875rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
   }
 
   .topbar-title { font-size: 16px; font-weight: 500; margin: 0 0 3px; }
 
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: #aaa;
-  }
+  .breadcrumb { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #aaa; }
   .breadcrumb span.active { color: #555; }
-  .breadcrumb .sep        { color: #ccc; }
+  .breadcrumb .sep { color: #ccc; }
 
   .topbar-right { display: flex; align-items: center; gap: 8px; }
 
   .role-badge {
-    background: #FDECEA;
-    color: #8B1A1A;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 20px;
+    background: #FDECEA; color: #8B1A1A;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
   }
 
   .topbar-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: #010A55;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #fff;
   }
 
-  /* Content */
   .content { flex: 1; padding: 1.5rem; overflow-y: auto; }
 
-  /* Dashboard embed */
   .dashboard-embed {
-    position: relative;
-    width: 100%;
-    padding-bottom: 62%;
-    border-radius: 12px;
-    overflow: hidden;
+    position: relative; width: 100%; padding-bottom: 62%;
+    border-radius: 12px; overflow: hidden;
     border: 0.5px solid rgba(0,0,0,0.08);
     background: #fff;
     box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   }
   .dashboard-embed iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border: none;
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; border: none;
   }
 
-  /* Placeholder */
   .placeholder-card {
-    background: #fff;
-    border: 0.5px solid rgba(0,0,0,0.08);
-    border-radius: 12px;
-    padding: 4rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #aaa;
-    text-align: center;
+    background: #fff; border: 0.5px solid rgba(0,0,0,0.08);
+    border-radius: 12px; padding: 4rem;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: #aaa; text-align: center;
   }
   .placeholder-icon { font-size: 2rem; margin-bottom: .75rem; }
   .placeholder-card h6 { font-size: 14px; font-weight: 500; color: #666; margin: 0 0 4px; }

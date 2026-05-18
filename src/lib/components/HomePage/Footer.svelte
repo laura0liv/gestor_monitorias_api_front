@@ -4,14 +4,14 @@
       title: 'Plataforma',
       links: [
         { label: 'Inicio', href: '/' },
-        { label: 'Iniciar sesión', href: '/login' },
+        { label: 'Iniciar sesión', href: '/Login' },
       ],
     },
     {
       title: 'Acceso rápido',
       links: [
-        { label: 'Tutorías', href: '/login' },
-        { label: 'Panel académico', href: '/login' },
+        { label: 'Tutorías', href: '/Login' },
+        { label: 'Panel académico', href: '/Login' },
       ],
     },
   ];
