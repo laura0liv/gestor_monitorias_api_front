@@ -2,11 +2,11 @@
   import { onMount } from "svelte";
   import { usuario } from '$lib/stores/user';
   import { goto } from '$app/navigation';
-  import Disponibilidad       from "$lib/components/Tutor/Disponibilidad.svelte";
-  import MisMateriasAsignadas from "$lib/components/Tutor/MisMateriasAsignadas.svelte";
-  import SesionesAgendadas    from "$lib/components/Tutor/SesionesAgendadas.svelte";
-  import RegistrarResultado   from "$lib/components/Tutor/RegistrarResultado.svelte";
-  import HistorialMonicorias  from "$lib/components/Tutor/HistorialMonitorias.svelte";
+  import Disponibilidad       from "$lib/components/tutor/Disponibilidad.svelte";
+  import MisMateriasAsignadas from "$lib/components/tutor/MisMateriasAsignadas.svelte";
+  import SesionesAgendadas    from "$lib/components/tutor/SesionesAgendadas.svelte";
+  import RegistrarResultado   from "$lib/components/tutor/RegistrarResultado.svelte";
+  import HistorialMonicorias  from "$lib/components/tutor/HistorialMonitorias.svelte";
 
   let modulo = $state("disponibilidad");
   let user = $state(null);
