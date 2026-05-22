@@ -10,17 +10,15 @@
 
   let modulo = $state("disponibilidad");
   let user = $state(null);
+  let sidebarOpen = $state(false);
 
   onMount(() => {
     usuario.init();
-
     let valorActual;
     const unsub = usuario.subscribe(val => { valorActual = val; });
     unsub();
-
     if (!valorActual) { goto('/Login'); return; }
     if (String(valorActual.id_rol) !== '2') { goto('/Login'); return; }
-
     user = valorActual;
   });
 
@@ -33,21 +31,34 @@
   };
 
   const nav = [
-    { id: "disponibilidad", label: "Disponibilidad",      icon: "bi-calendar-week"  },
-    { id: "materias",       label: "Materias asignadas",  icon: "bi-book"           },
-    { id: "sesiones",       label: "Sesiones agendadas",  icon: "bi-journal-check"  },
-    { id: "resultado",      label: "Registrar resultado", icon: "bi-pencil-square"  },
-    { id: "historial",      label: "Historial",           icon: "bi-clock-history"  },
+    { id: "disponibilidad", label: "Disponibilidad",      icon: "bi-calendar-week" },
+    { id: "materias",       label: "Materias asignadas",  icon: "bi-book"          },
+    { id: "sesiones",       label: "Sesiones agendadas",  icon: "bi-journal-check" },
+    { id: "resultado",      label: "Registrar resultado", icon: "bi-pencil-square" },
+    { id: "historial",      label: "Historial",           icon: "bi-clock-history" },
   ];
 
   let tituloActual = $derived(meta[modulo]?.titulo ?? modulo);
   let crumbActual  = $derived(meta[modulo]?.crumb  ?? modulo);
+
+  function navegar(id) {
+    modulo = id;
+    sidebarOpen = false;
+  }
 </script>
 
 {#if user}
 <div class="layout">
 
-  <aside class="sidebar">
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="overlay"
+    style="display: {sidebarOpen ? 'block' : 'none'};"
+    onclick={() => sidebarOpen = false}
+  ></div>
+
+  <aside class="sidebar" style="transform: {sidebarOpen ? 'translateX(0)' : ''};">
     <div class="sidebar-header">
       <div class="sidebar-avatar">{user.nombre[0]}{user.apellido[0]}</div>
       <div>
@@ -61,7 +72,7 @@
         <button
           class="nav-item"
           class:active={modulo === item.id}
-          onclick={() => modulo = item.id}
+          onclick={() => navegar(item.id)}
         >
           <i class="bi {item.icon}"></i>
           <span>{item.label}</span>
@@ -70,7 +81,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button class="nav-item" style="border:none; cursor:pointer;"
+      <button class="nav-item logout-btn"
         onclick={() => { usuario.logout(); goto('/Login'); }}>
         <i class="bi bi-box-arrow-left"></i>
         <span>Cerrar sesión</span>
@@ -81,15 +92,20 @@
 
   <div class="main">
     <header class="topbar">
-      <div>
-        <h1 class="topbar-title">{tituloActual}</h1>
-        <div class="breadcrumb">
-          {#each crumbActual.split(" / ") as parte, i}
-            <span class:active={i === crumbActual.split(" / ").length - 1}>{parte}</span>
-            {#if i < crumbActual.split(" / ").length - 1}
-              <span class="sep">/</span>
-            {/if}
-          {/each}
+      <div class="topbar-left">
+        <button class="hamburger" onclick={() => sidebarOpen = !sidebarOpen} aria-label="Abrir menú">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <h1 class="topbar-title">{tituloActual}</h1>
+          <div class="breadcrumb">
+            {#each crumbActual.split(" / ") as parte, i}
+              <span class:active={i === crumbActual.split(" / ").length - 1}>{parte}</span>
+              {#if i < crumbActual.split(" / ").length - 1}
+                <span class="sep">/</span>
+              {/if}
+            {/each}
+          </div>
         </div>
       </div>
       <div class="topbar-right">
@@ -119,12 +135,19 @@
 <style>
   :global(body) { margin: 0; font-family: system-ui, sans-serif; }
 
-  .layout { display: flex; min-height: 100vh; background: #f5f5f3; }
+  .layout { display: flex; min-height: 100vh; padding-top: 68px; background: #f5f5f3; }
+
+  .overlay {
+    position: fixed; inset: 0; top: 68px;
+    background: rgba(0,0,0,0.45);
+    z-index: 99;
+  }
 
   .sidebar {
     width: 220px; min-width: 220px;
     background: #010A55;
     display: flex; flex-direction: column;
+    transition: transform .25s ease;
   }
 
   .sidebar-header {
@@ -160,6 +183,8 @@
   .nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
   .nav-item i { font-size: 14px; flex-shrink: 0; }
 
+  .logout-btn { border: none !important; cursor: pointer; }
+
   .sidebar-footer {
     padding: .75rem .5rem;
     border-top: 1px solid rgba(255,255,255,0.1);
@@ -175,6 +200,16 @@
     border-bottom: 0.5px solid rgba(0,0,0,0.08);
     padding: .875rem 1.5rem;
     display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+
+  .hamburger {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    font-size: 24px; color: #010A55;
+    padding: 2px 6px; line-height: 1;
+    align-items: center; justify-content: center;
   }
 
   .topbar-title { font-size: 16px; font-weight: 500; margin: 0 0 3px; }
@@ -199,4 +234,29 @@
   }
 
   .content { flex: 1; padding: 1.5rem; overflow-y: auto; }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 68px; left: 0;
+      width: 240px;
+      height: 100%;
+      min-width: unset;
+      transform: translateX(-100%);
+      z-index: 100;
+    }
+
+    .hamburger { display: flex; }
+
+    .topbar { padding: .75rem 1rem; }
+
+    .role-badge { display: none; }
+
+    .content { padding: 1rem; }
+  }
+
+  @media (max-width: 480px) {
+    .topbar-title { font-size: 14px; }
+    .breadcrumb { display: none; }
+  }
 </style>

@@ -1,6 +1,5 @@
 /* =============================================================
-   crud-materias.css  —  Estilos exclusivos de la vista Materias
-   Los estilos de la tabla (dt-*) viven en data-table.css
+   crud-materias.css
    ============================================================= */
 
 /* ── Layout ── */
@@ -16,29 +15,21 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .page-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem;
-  color: #1a1a2e;
+  font-size: 1.5rem; font-weight: 700;
+  margin: 0 0 0.25rem; color: #1a1a2e;
 }
 
-.page-sub {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-}
+.page-sub { font-size: 0.875rem; color: #6b7280; margin: 0; }
 
 .badge-pill {
-  background: #1a1a2e;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
-  white-space: nowrap;
+  background: #1a1a2e; color: #fff;
+  font-size: 0.8rem; font-weight: 600;
+  padding: 0.35rem 0.9rem; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
 }
 
 /* ── Stats ── */
@@ -51,75 +42,47 @@
 
 .stat {
   background: #fff;
-  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  border: 0.5px solid rgba(0,0,0,0.08);
   border-radius: 12px;
   padding: 1rem 1.25rem;
 }
 
 .stat-label {
-  font-size: 0.75rem;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
+  font-size: 0.75rem; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;
 }
 
-.stat-val {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1a1a2e;
-}
+.stat-val { font-size: 1.75rem; font-weight: 700; color: #1a1a2e; }
 
 /* ── Alertas ── */
 .alert {
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  gap: 0.5rem;
+  padding: 0.75rem 1rem; border-radius: 10px;
+  margin-bottom: 1rem; font-size: 0.875rem; gap: 0.5rem;
 }
 
-.alert-danger {
-  background: #fef2f2;
-  border: 0.5px solid #fecaca;
-  color: #b91c1c;
-}
-
-.alert-success {
-  background: #f0fdf4;
-  border: 0.5px solid #bbf7d0;
-  color: #15803d;
-}
+.alert-danger  { background: #fef2f2; border: 0.5px solid #fecaca; color: #b91c1c; }
+.alert-success { background: #f0fdf4; border: 0.5px solid #bbf7d0; color: #15803d; }
 
 .alert-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-  color: inherit;
-  padding: 0;
+  background: none; border: none; cursor: pointer;
+  font-size: 1rem; line-height: 1; color: inherit; padding: 0; flex-shrink: 0;
 }
 
 /* ── Formulario ── */
 .form-panel {
   background: #fff;
-  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  border: 0.5px solid rgba(0,0,0,0.08);
   border-radius: 14px;
   padding: 1.25rem;
   margin-bottom: 1rem;
 }
 
 .panel-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: #6b7280;
-  margin-bottom: 0.9rem;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: #6b7280; margin-bottom: 0.9rem;
 }
 
 .form-row {
@@ -130,125 +93,84 @@
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  flex: 1 1 140px;
+  display: flex; flex-direction: column;
+  gap: 0.35rem; flex: 1 1 140px;
 }
 
-.field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #374151;
-}
+.field label { font-size: 0.8rem; font-weight: 600; color: #374151; }
 
 .field input,
 .field select {
   padding: 0.5rem 0.75rem;
-  border: 0.5px solid rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  color: #1a1a2e;
-  outline: none;
-  background: #fff;
-  font-family: inherit;
+  border: 0.5px solid rgba(0,0,0,0.15);
+  border-radius: 8px; font-size: 0.875rem;
+  color: #1a1a2e; outline: none;
+  background: #fff; font-family: inherit;
   transition: border-color 0.15s;
+  width: 100%; box-sizing: border-box;
 }
 
 .field input:focus,
-.field select:focus {
-  border-color: #1a1a2e;
-}
+.field select:focus { border-color: #1a1a2e; }
 
-.field-actions {
-  flex: 0 0 auto;
-  
-}
+.field-actions { flex: 0 0 auto; display: flex; gap: 0.5rem; align-items: flex-end; }
 
-.actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* ── Botones del formulario ── */
+/* ── Botones ── */
 .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-  transition: all 0.15s;
+  padding: 0.5rem 1rem; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; border: none;
+  font-family: inherit; transition: all 0.15s;
+  white-space: nowrap;
 }
 
-.btn-success {
-  background: #1a1a2e;
-  color: #fff;
-}
+.btn-success       { background: #1a1a2e; color: #fff; }
+.btn-success:hover { background: #2d2d4e; }
 
-.btn-success:hover {
-  background: #2d2d4e;
-}
+.btn-ghost         { background: transparent; color: #6b7280; border: 0.5px solid rgba(0,0,0,0.15); }
+.btn-ghost:hover   { background: #f3f4f6; }
 
-.btn-ghost {
-  background: transparent;
-  color: #6b7280;
-  border: 0.5px solid rgba(0, 0, 0, 0.15);
-}
-
-.btn-ghost:hover {
-  background: #f3f4f6;
-}
-
-/* ── Botones de fila (slots acciones de DataTable) ── */
+/* ── Botones de fila ── */
 .act-btn {
-  padding: 0.3rem 0.7rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 0.5px solid;
-  font-family: inherit;
-  transition: all 0.15s;
-  margin-right: 0.3rem;
+  padding: 0.3rem 0.7rem; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; border: 0.5px solid;
+  font-family: inherit; transition: all 0.15s; margin-right: 0.3rem;
 }
 
-.act-btn.warn {
-  border-color: #f59e0b;
-  color: #b45309;
-  background: #fffbeb;
-}
+.act-btn.warn          { border-color: #f59e0b; color: #b45309; background: #fffbeb; }
+.act-btn.warn:hover    { background: #f59e0b; color: #fff; }
+.act-btn.danger        { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+.act-btn.danger:hover  { background: #ef4444; color: #fff; }
 
-.act-btn.warn:hover {
-  background: #f59e0b;
-  color: #fff;
-}
+.fw { font-weight: 600; color: #1a1a2e; }
 
-.act-btn.danger {
-  border-color: #ef4444;
-  color: #b91c1c;
-  background: #fef2f2;
-}
-
-.act-btn.danger:hover {
-  background: #ef4444;
-  color: #fff;
-}
-
-/* ── Celda nombre ── */
-.fw {
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-/* ── Badge de código ── */
 .code-badge {
-  background: #f3f4f6;
-  border: 0.5px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  padding: 0.15rem 0.55rem;
-  font-size: 0.8rem;
-  font-family: monospace;
-  color: #374151;
+  background: #f3f4f6; border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 6px; padding: 0.15rem 0.55rem;
+  font-size: 0.8rem; font-family: monospace; color: #374151;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .page { padding: 1rem; }
+
+  .form-row { gap: 0.5rem; }
+
+  /* En tablet los campos ocupan mínimo 45% */
+  .field { flex: 1 1 45%; }
+
+  /* Acciones van al final en fila completa */
+  .field-actions { flex: 1 1 100%; justify-content: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 1.2rem; }
+
+  /* Cada campo ocupa todo el ancho */
+  .field { flex: 1 1 100%; }
+
+  .field-actions { flex: 1 1 100%; }
+
+  .stat-val { font-size: 1.4rem; }
 }
