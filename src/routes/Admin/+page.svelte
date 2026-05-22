@@ -9,17 +9,15 @@
   let modulo = $state("dashboard");
   let user = $state(null);
   let grupos = $state({ gestion: true });
+  let sidebarOpen = $state(false);
 
   onMount(() => {
     usuario.init();
-
     let valorActual;
     const unsub = usuario.subscribe(val => { valorActual = val; });
     unsub();
-
     if (!valorActual) { goto('/Login'); return; }
     if (String(valorActual.id_rol) !== '1') { goto('/Login'); return; }
-
     user = valorActual;
   });
 
@@ -31,19 +29,32 @@
   };
 
   const gestionItems = [
-    { id: "usuarios", label: "Usuarios", icon: "bi-people"      },
-    { id: "materias", label: "Materias", icon: "bi-book"        },
+    { id: "usuarios", label: "Usuarios", icon: "bi-people"       },
+    { id: "materias", label: "Materias", icon: "bi-book"         },
     { id: "tutores",  label: "Tutores",  icon: "bi-person-badge" },
   ];
 
   let tituloActual = $derived(meta[modulo]?.titulo ?? modulo);
   let crumbActual  = $derived(meta[modulo]?.crumb  ?? modulo);
+
+  function navegar(id) {
+    modulo = id;
+    sidebarOpen = false;
+  }
 </script>
 
 {#if user}
 <div class="layout">
 
-  <aside class="sidebar">
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="overlay"
+    style="display: {sidebarOpen ? 'block' : 'none'};"
+    onclick={() => sidebarOpen = false}
+  ></div>
+
+  <aside class="sidebar" style="transform: {sidebarOpen ? 'translateX(0)' : ''};">
     <div class="sidebar-brand">
       <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
       <div>
@@ -56,7 +67,7 @@
       <button
         class="nav-item"
         class:active={modulo === "dashboard"}
-        onclick={() => modulo = "dashboard"}
+        onclick={() => navegar("dashboard")}
       >
         <i class="bi bi-grid"></i>
         <span>Dashboard</span>
@@ -74,7 +85,7 @@
               <button
                 class="nav-item nav-item-sub"
                 class:active={modulo === item.id}
-                onclick={() => modulo = item.id}
+                onclick={() => navegar(item.id)}
               >
                 <i class="bi {item.icon}"></i>
                 <span>{item.label}</span>
@@ -86,7 +97,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button class="nav-item" style="border:none; cursor:pointer;"
+      <button class="nav-item logout-btn"
         onclick={() => { usuario.logout(); goto('/Login'); }}>
         <i class="bi bi-box-arrow-left"></i>
         <span>Cerrar sesión</span>
@@ -97,15 +108,20 @@
 
   <div class="main">
     <header class="topbar">
-      <div>
-        <h1 class="topbar-title">{tituloActual}</h1>
-        <div class="breadcrumb">
-          {#each crumbActual.split(" / ") as parte, i}
-            <span class:active={i === crumbActual.split(" / ").length - 1}>{parte}</span>
-            {#if i < crumbActual.split(" / ").length - 1}
-              <span class="sep">/</span>
-            {/if}
-          {/each}
+      <div class="topbar-left">
+        <button class="hamburger" onclick={() => sidebarOpen = !sidebarOpen} aria-label="Abrir menú">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <h1 class="topbar-title">{tituloActual}</h1>
+          <div class="breadcrumb">
+            {#each crumbActual.split(" / ") as parte, i}
+              <span class:active={i === crumbActual.split(" / ").length - 1}>{parte}</span>
+              {#if i < crumbActual.split(" / ").length - 1}
+                <span class="sep">/</span>
+              {/if}
+            {/each}
+          </div>
         </div>
       </div>
       <div class="topbar-right">
@@ -124,16 +140,12 @@
             allowfullscreen
           ></iframe>
         </div>
-
       {:else if modulo === "usuarios"}
         <CrudUsuarios />
-
       {:else if modulo === "materias"}
         <CrudMaterias />
-
       {:else if modulo === "tutores"}
         <CrudTutores />
-
       {:else}
         <div class="placeholder-card">
           <i class="bi bi-tools placeholder-icon"></i>
@@ -150,12 +162,19 @@
 <style>
   :global(body) { margin: 0; font-family: system-ui, sans-serif; }
 
-  .layout { display: flex; min-height: 100vh; background: #f5f5f3; }
+  .layout { display: flex; min-height: 100vh; padding-top: 68px; background: #f5f5f3; }
+
+  .overlay {
+    position: fixed; inset: 0; top: 68px;
+    background: rgba(0,0,0,0.45);
+    z-index: 99;
+  }
 
   .sidebar {
     width: 220px; min-width: 220px;
     background: #010A55;
     display: flex; flex-direction: column;
+    transition: transform .25s ease;
   }
 
   .sidebar-brand {
@@ -219,6 +238,8 @@
     margin-left: 12px;
   }
 
+  .logout-btn { border: none !important; cursor: pointer; }
+
   .sidebar-footer {
     padding: .75rem .5rem;
     border-top: 1px solid rgba(255,255,255,0.1);
@@ -234,6 +255,16 @@
     border-bottom: 0.5px solid rgba(0,0,0,0.08);
     padding: .875rem 1.5rem;
     display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+
+  .hamburger {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    font-size: 24px; color: #010A55;
+    padding: 2px 6px; line-height: 1;
+    align-items: center; justify-content: center;
   }
 
   .topbar-title { font-size: 16px; font-weight: 500; margin: 0 0 3px; }
@@ -281,4 +312,33 @@
   .placeholder-icon { font-size: 2rem; margin-bottom: .75rem; }
   .placeholder-card h6 { font-size: 14px; font-weight: 500; color: #666; margin: 0 0 4px; }
   .placeholder-card p  { font-size: 13px; margin: 0; }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 68px; left: 0;
+      width: 240px;
+      height: 100%;
+      min-width: unset;
+      transform: translateX(-100%);
+      z-index: 100;
+    }
+
+    .hamburger { display: flex; }
+
+    .topbar { padding: .75rem 1rem; }
+
+    .role-badge { display: none; }
+
+    .content { padding: 1rem; }
+
+    .dashboard-embed { padding-bottom: 75%; }
+
+    .placeholder-card { padding: 2rem 1rem; }
+  }
+
+  @media (max-width: 480px) {
+    .topbar-title { font-size: 14px; }
+    .breadcrumb { display: none; }
+  }
 </style>

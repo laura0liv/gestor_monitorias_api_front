@@ -1,9 +1,7 @@
 /* =============================================================
-   crud-tutores.css  —  Estilos exclusivos de la vista Tutores
-   Los estilos de la tabla (dt-*) viven en data-table.css
+   crud-tutores.css
    ============================================================= */
 
-/* ── Layout ── */
 .crud-page {
   padding: 1.5rem;
   background: var(--color-background-tertiary, #f5f5f3);
@@ -17,68 +15,37 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.crud-title {
-  font-size: 1.35rem;
-  font-weight: 600;
-  margin: 0 0 0.2rem;
-  color: #1a1a2e;
-}
-
-.crud-subtitle {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
-}
+.crud-title    { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.2rem; color: #1a1a2e; }
+.crud-subtitle { font-size: 0.85rem; color: #6b7280; margin: 0; }
 
 .crud-badge {
-  background: #e6f1fb;
-  color: #0c447c;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.3rem 0.85rem;
-  border-radius: 999px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  background: #e6f1fb; color: #0c447c;
+  font-size: 0.75rem; font-weight: 600;
+  padding: 0.3rem 0.85rem; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
 }
 
 /* ── Alertas ── */
 .alert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 0.5rem;
+  padding: 0.7rem 1rem; border-radius: 10px;
+  font-size: 0.85rem; margin-bottom: 1rem;
 }
 
-.alert-danger {
-  background: #fef2f2;
-  border: 0.5px solid #fecaca;
-  color: #b91c1c;
-}
-
-.alert-success {
-  background: #f0fdf4;
-  border: 0.5px solid #bbf7d0;
-  color: #15803d;
-}
+.alert-danger  { background: #fef2f2; border: 0.5px solid #fecaca; color: #b91c1c; }
+.alert-success { background: #f0fdf4; border: 0.5px solid #bbf7d0; color: #15803d; }
 
 .alert-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1;
-  color: inherit;
-  padding: 0;
-  flex-shrink: 0;
+  background: none; border: none; cursor: pointer;
+  font-size: 0.95rem; line-height: 1; color: inherit;
+  padding: 0; flex-shrink: 0;
 }
 
-/* ── Selector de asignación (slot toolbar del DataTable) ── */
+/* ── Toolbar de asignación ── */
 .asignar-inline {
   display: flex;
   align-items: center;
@@ -87,131 +54,78 @@
 }
 
 .asignar-select {
-  height: 34px;
-  padding: 0 0.65rem;
-  border: 0.5px solid rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-family: inherit;
-  color: #1a1a2e;
-  background: #fff;
-  cursor: pointer;
+  height: 34px; padding: 0 0.65rem;
+  border: 0.5px solid rgba(0,0,0,0.15);
+  border-radius: 8px; font-size: 0.8rem;
+  font-family: inherit; color: #1a1a2e;
+  background: #fff; cursor: pointer;
   transition: border-color 0.15s;
   min-width: 160px;
+  /* En móvil se expande */
+  flex: 1 1 140px;
 }
 
 .asignar-select:focus {
-  outline: none;
-  border-color: #1d9e75;
-  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.12);
+  outline: none; border-color: #1d9e75;
+  box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
 }
 
-/* ── Botón principal ── */
+/* ── Botón ── */
 .btn {
-  height: 34px;
-  padding: 0 1rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-  transition: all 0.15s;
-  white-space: nowrap;
+  height: 34px; padding: 0 1rem;
+  border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; border: none; font-family: inherit;
+  transition: all 0.15s; white-space: nowrap;
 }
 
-.btn-success {
-  background: #1d9e75;
-  color: #fff;
-}
+.btn-success       { background: #1d9e75; color: #fff; }
+.btn-success:hover { background: #15795a; }
+.btn:disabled      { opacity: 0.55; cursor: not-allowed; }
 
-.btn-success:hover {
-  background: #15795a;
-}
-
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* ── Celda tutor: avatar + nombre ── */
-.tutor-info {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
+/* ── Celda tutor ── */
+.tutor-info { display: flex; align-items: center; gap: 0.6rem; }
 
 .avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #e6f1fb;
-  color: #0c447c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  flex-shrink: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #e6f1fb; color: #0c447c;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.03em;
 }
 
-.tutor-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1a1a2e;
-  line-height: 1.3;
-}
+.tutor-name { font-size: 0.875rem; font-weight: 500; color: #1a1a2e; line-height: 1.3; }
 
-/* ── Celda materias: lista de badges ── */
-.materias-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
+/* ── Celda materias ── */
+.materias-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
 .materia-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: #f3f4f6;
-  border: 0.5px solid rgba(0, 0, 0, 0.1);
-  border-radius: 999px;
-  padding: 0.2rem 0.55rem 0.2rem 0.7rem;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: #374151;
-  line-height: 1;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: #f3f4f6; border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 999px; padding: 0.2rem 0.55rem 0.2rem 0.7rem;
+  font-size: 0.78rem; font-weight: 500; color: #374151; line-height: 1;
 }
 
-/* Botón ✕ dentro del badge */
 .badge-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border: none;
-  background: rgba(0, 0, 0, 0.07);
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.65rem;
-  color: #6b7280;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  border: none; background: rgba(0,0,0,0.07); border-radius: 50%;
+  cursor: pointer; font-size: 0.65rem; color: #6b7280;
+  padding: 0; line-height: 1; flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 }
 
-.badge-close:hover {
-  background: #fecaca;
-  color: #b91c1c;
-}
+.badge-close:hover { background: #fecaca; color: #b91c1c; }
 
-/* Texto cuando no hay materias */
-.empty-text {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  font-style: italic;
+.empty-text { font-size: 0.8rem; color: #9ca3af; font-style: italic; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .crud-page { padding: 1rem; }
+
+  .crud-title { font-size: 1.15rem; }
+
+  /* Los selects del toolbar ocupan todo el ancho */
+  .asignar-inline { gap: 0.4rem; }
+  .asignar-select { flex: 1 1 100%; min-width: unset; }
+  .btn            { width: 100%; }
 }

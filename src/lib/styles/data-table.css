@@ -1,10 +1,11 @@
-
 /* ── Wrapper ── */
 .dt-wrap {
   background: #fff;
   border: 0.5px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ── Toolbar ── */
@@ -20,8 +21,8 @@
 
 .dt-search-wrap {
   position: relative;
-  flex: 1;
-  min-width: 200px;
+  flex: 1 1 260px;
+  min-width: 180px;
 }
 
 .dt-search-icon {
@@ -58,17 +59,19 @@
   white-space: nowrap;
 }
 
-/* ── Botones de exportar ── */
+/* ── Botones exportar ── */
 .dt-export-group {
   display: flex;
   gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .dt-btn-export {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 0.4rem 0.8rem;
+  padding: 0.45rem 0.8rem;
   border-radius: 7px;
   font-size: 12px;
   font-weight: 600;
@@ -76,22 +79,52 @@
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
-.dt-btn-export.csv  { border-color: #10b981; color: #065f46; background: #ecfdf5; }
-.dt-btn-export.csv:hover  { background: #10b981; color: #fff; }
+.dt-btn-export.csv  {
+  border-color: #10b981;
+  color: #065f46;
+  background: #ecfdf5;
+}
 
-.dt-btn-export.json { border-color: #6366f1; color: #3730a3; background: #eef2ff; }
-.dt-btn-export.json:hover { background: #6366f1; color: #fff; }
+.dt-btn-export.csv:hover  {
+  background: #10b981;
+  color: #fff;
+}
 
-.dt-btn-export.pdf  { border-color: #ef4444; color: #991b1b; background: #fef2f2; }
-.dt-btn-export.pdf:hover  { background: #ef4444; color: #fff; }
+.dt-btn-export.json {
+  border-color: #6366f1;
+  color: #3730a3;
+  background: #eef2ff;
+}
+
+.dt-btn-export.json:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+.dt-btn-export.pdf  {
+  border-color: #ef4444;
+  color: #991b1b;
+  background: #fef2f2;
+}
+
+.dt-btn-export.pdf:hover  {
+  background: #ef4444;
+  color: #fff;
+}
 
 /* ── Tabla ── */
-.dt-table-wrap { overflow-x: auto; }
+.dt-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .dt-table {
   width: 100%;
+  min-width: 750px;
   border-collapse: collapse;
 }
 
@@ -105,6 +138,7 @@
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
   text-align: left;
   background: #fafafa;
+  white-space: nowrap;
 }
 
 .dt-table tbody td {
@@ -131,9 +165,9 @@
   white-space: nowrap;
 }
 
-/* ── Estado vacío / cargando ── */
+/* ── Estado ── */
 .dt-state {
-  padding: 3rem;
+  padding: 3rem 1rem;
   text-align: center;
   color: #9ca3af;
   font-size: 13px;
@@ -147,7 +181,7 @@
   padding: 0.8rem 1.25rem;
   border-top: 0.5px solid rgba(0, 0, 0, 0.06);
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .dt-pagination-info {
@@ -159,6 +193,7 @@
   display: flex;
   gap: 0.3rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .dt-page-btn {
@@ -176,6 +211,7 @@
   justify-content: center;
   font-family: inherit;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .dt-page-btn:hover:not(:disabled) {
@@ -198,4 +234,94 @@
   font-size: 12px;
   color: #9ca3af;
   padding: 0 0.15rem;
+}
+
+/* ───────────────────────────── */
+/* 📱 TABLET */
+/* ───────────────────────────── */
+@media (max-width: 992px) {
+
+  .dt-toolbar {
+    align-items: stretch;
+  }
+
+  .dt-search-wrap {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .dt-export-group {
+    width: 100%;
+  }
+
+  .dt-btn-export {
+    flex: 1;
+  }
+
+  .dt-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dt-pagination-controls {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ───────────────────────────── */
+/* 📱 MOBILE */
+/* ───────────────────────────── */
+@media (max-width: 640px) {
+
+  .dt-toolbar {
+    padding: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .dt-count {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dt-export-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .dt-btn-export {
+    width: 100%;
+    padding: 0.55rem;
+    font-size: 11px;
+  }
+
+  .dt-table {
+    min-width: 650px;
+  }
+
+  .dt-table thead th,
+  .dt-table tbody td {
+    padding: 0.8rem;
+    font-size: 12px;
+  }
+
+  .dt-pagination {
+    padding: 0.8rem;
+  }
+
+  .dt-pagination-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dt-pagination-controls {
+    justify-content: center;
+  }
+
+  .dt-page-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
 }

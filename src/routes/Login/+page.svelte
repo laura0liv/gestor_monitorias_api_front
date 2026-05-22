@@ -184,18 +184,21 @@
       <div class="login-divider"><span>acceso rápido</span></div>
 
       <div class="quick-access">
-        <a href="/Estudiante" class="btn-quick">
+        <div class="btn-quick">
           <i class="ti ti-user-graduate btn-quick-icon" aria-hidden="true"></i>
-          <span class="btn-quick-label">Estudiante</span>
-        </a>
-        <a href="/Tutor" class="btn-quick">
+          <span class="btn-quick-label">laura1@test.com</span>
+          <span class="btn-quick-label">123456</span>
+        </div>
+        <div class="btn-quick">
           <i class="ti ti-chalkboard btn-quick-icon" aria-hidden="true"></i>
-          <span class="btn-quick-label">Tutor</span>
-        </a>
-        <a href="/Admin" class="btn-quick">
+          <span class="btn-quick-label">valentina@test.com</span>
+          <span class="btn-quick-label">123456</span>
+        </div>
+        <div class="btn-quick">
           <i class="ti ti-settings btn-quick-icon" aria-hidden="true"></i>
-          <span class="btn-quick-label">Admin</span>
-        </a>
+          <span class="btn-quick-label">carlos@test.com</span>
+          <span class="btn-quick-label">123456</span>
+        </div>
       </div>
 
     </div>
